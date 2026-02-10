@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import TablaReportes from './TablaReportes.jsx';
 import MesesTable from './MesesTable.jsx';
 import GastosFijosTable from './GastosFijosTable.jsx';
@@ -54,9 +54,9 @@ function App() {
             >
               Gastos Fijos
             </button>
-            <a href="#" onClick={handleLogout} className="hover:text-teal-400">
+            <button onClick={handleLogout} className="hover:text-teal-400 w-full text-left">
               Salir
-            </a>
+            </button>
           </nav>
         </div>
       </div>
@@ -119,9 +119,9 @@ function App() {
           >
             Gastos Fijos
           </button>
-          <a href="#" onClick={handleLogout} className="hover:text-teal-400">
+          <button onClick={handleLogout} className="hover:text-teal-400 w-full text-left">
             Salir
-          </a>
+          </button>
         </nav>
       </div>
 
