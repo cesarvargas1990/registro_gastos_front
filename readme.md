@@ -1,42 +1,33 @@
-# registro_gastos
+# registro_gastos_front
 
-API Flask para registro y reporte de gastos.
+Frontend React para registro y reporte de gastos.
 
 ## Requisitos
 
-- Python 3.12+
-- MySQL (o Docker)
+- Node.js 18+ (recomendado 20 o 22)
 
 ## Instalación local
 
-1. Crear entorno y activar
-2. Instalar dependencias
+1. Instala dependencias:
 
 ```bash
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
+npm install
 ```
 
-## Variables de entorno
+## Scripts útiles
 
-Configura la conexión a base de datos según tu entorno. Ejemplo:
+- `npm run start` — Inicia el servidor de desarrollo
+- `npm run build` — Genera el build de producción
+- `npm run lint` — Verifica reglas de estilo
+- `npm run format` — Aplica formato automático
+- `npm test` — Ejecuta los tests
 
-- `MYSQL_HOST`
-- `MYSQL_USER`
-- `MYSQL_PASSWORD`
-- `MYSQL_DB`
+## SonarCloud
 
-## Ejecutar en local
-
-```bash
-python app.py
-```
-
-## Docker (deploy/update)
+El análisis se ejecuta automáticamente en CI. Para análisis local:
 
 ```bash
-git pull && docker compose build --no-cache && docker compose up --force-recreate -d
+sonar-scanner -Dproject.settings=sonar-project-front.properties
 ```
 
 ## Calidad
