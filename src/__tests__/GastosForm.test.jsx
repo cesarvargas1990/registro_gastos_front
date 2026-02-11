@@ -46,6 +46,7 @@ describe('GastosForm', () => {
   });
 
   it('muestra error si axios falla', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     axios.post.mockRejectedValueOnce(new Error('fail'));
     render(<GastosForm />);
     fireEvent.change(screen.getByPlaceholderText(/descripción/i), { target: { value: 'Compra' } });
@@ -58,6 +59,7 @@ describe('GastosForm', () => {
     fireEvent.change(screen.getByTestId('filtro-categorias'), { target: { value: '1' } });
     fireEvent.click(screen.getByText(/guardar/i));
     expect(await screen.findByText(/error al guardar/i)).toBeInTheDocument();
+    console.error.mockRestore();
   });
 
   it('envía el formulario correctamente (nuevo)', async () => {
