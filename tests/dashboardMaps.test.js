@@ -1,4 +1,4 @@
-import { mapDashboardData } from '../utils/dashboardMaps.js';
+import { mapDashboardData } from '../src/utils/dashboardMaps.js';
 
 test('mapDashboardData retorna objeto mapeado', () => {
   const data = { total: 100 };
