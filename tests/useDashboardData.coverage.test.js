@@ -1,5 +1,4 @@
-import { renderHook, act } from '@testing-library/react-hooks';
-import { waitFor } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import useDashboardData from '../src/hooks/useDashboardData.js';
 import { getJson, postJson } from '../src/utils/api.js';
 
