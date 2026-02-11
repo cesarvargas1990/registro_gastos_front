@@ -45,8 +45,34 @@ describe('GastosForm', () => {
     expect(await screen.findByText(/todos los campos obligatorios/i)).toBeInTheDocument();
   });
 
+  it('muestra error si axios falla', async () => {
+    axios.post.mockRejectedValueOnce(new Error('fail'));
+    render(<GastosForm />);
+    fireEvent.change(screen.getByPlaceholderText(/descripción/i), { target: { value: 'Compra' } });
+    fireEvent.change(screen.getByPlaceholderText(/valor/i), { target: { value: '123' } });
+    const dateInputs = screen.getAllByDisplayValue('');
+    fireEvent.change(
+      dateInputs.find((input) => input.type === 'date'),
+      { target: { value: '2025-01-01' } }
+    );
+    fireEvent.change(screen.getByTestId('filtro-categorias'), { target: { value: '1' } });
+    fireEvent.click(screen.getByText(/guardar/i));
+    expect(await screen.findByText(/error al guardar/i)).toBeInTheDocument();
+  });
+
   it('envía el formulario correctamente (nuevo)', async () => {
-      // Test 'muestra error si axios falla' removed due to CI failure
+    axios.post.mockResolvedValueOnce({});
+    render(<GastosForm />);
+    fireEvent.change(screen.getByPlaceholderText(/descripción/i), { target: { value: 'Compra' } });
+    fireEvent.change(screen.getByPlaceholderText(/valor/i), { target: { value: '123' } });
+    const dateInputs = screen.getAllByDisplayValue('');
+    fireEvent.change(
+      dateInputs.find((input) => input.type === 'date'),
+      { target: { value: '2025-01-01' } }
+    );
+    fireEvent.change(screen.getByTestId('filtro-categorias'), { target: { value: '1' } });
+    fireEvent.click(screen.getByText(/guardar/i));
+    await waitFor(() => expect(axios.post).toHaveBeenCalled());
     expect(await screen.findByText(/exitosamente/i)).toBeInTheDocument();
   });
 
