@@ -69,7 +69,7 @@ export default function useDashboardData() {
 
   const handleGastoFijoToggle = useCallback(
     (item, mes) => {
-      if (item[mes] === undefined || item[mes] === null) {
+      if (!item[mes]) {
         const data = {
           descripcion: item.Descripción,
           valor: item.Valor,
