@@ -1,11 +1,35 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import Login from '../src/Login.jsx';
 
 test('renderiza Login correctamente', () => {
-  render(<Login />);
-  // Busca el encabezado
+  render(<Login onLogin={() => {}} />);
   expect(screen.getByText(/iniciar sesión/i)).toBeInTheDocument();
-  // Busca el botón
   expect(screen.getByText(/entrar/i)).toBeInTheDocument();
+});
+
+test('login exitoso llama onLogin', () => {
+  const onLogin = jest.fn();
+  render(<Login onLogin={onLogin} />);
+  fireEvent.change(screen.getByPlaceholderText(/correo/i), {
+    target: { value: 'admin@mail.com' },
+  });
+  fireEvent.change(screen.getByPlaceholderText(/contraseña/i), {
+    target: { value: '123456' },
+  });
+  fireEvent.click(screen.getByText(/entrar/i));
+  expect(onLogin).toHaveBeenCalled();
+});
+
+test('login fallido muestra alerta', () => {
+  window.alert = jest.fn();
+  render(<Login onLogin={() => {}} />);
+  fireEvent.change(screen.getByPlaceholderText(/correo/i), {
+    target: { value: 'user@mail.com' },
+  });
+  fireEvent.change(screen.getByPlaceholderText(/contraseña/i), {
+    target: { value: 'wrongpass' },
+  });
+  fireEvent.click(screen.getByText(/entrar/i));
+  expect(window.alert).toHaveBeenCalledWith('Credenciales inválidas');
 });
