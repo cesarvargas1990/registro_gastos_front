@@ -1,3 +1,4 @@
+import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import TablaReportes from '../src/TablaReportes.jsx';
 let mockData = [
@@ -29,7 +30,6 @@ jest.mock('axios', () => ({
     return Promise.resolve();
   }),
 }));
-import React from 'react';
 // FiltroCategorias mock
 jest.mock('../src/FiltroCategorias.jsx', () => ({
   __esModule: true,
