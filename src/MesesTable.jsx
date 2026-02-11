@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
+import { formatCurrency } from './utils/format';
 
 const BASE_URL = 'http://147.93.1.252:5000';
 
@@ -156,6 +157,18 @@ export default function MesesTable() {
                         value={mes[col.field] ?? ''}
                         onChange={(e) => actualizarCampo(index, col.field, e.target.value)}
                       />
+                    ) : // Si el campo es numérico, mostrar con formato de moneda
+                    [
+                        'meta_ahorro',
+                        'ingreso_neto',
+                        'estimado_gastos_fijos',
+                        'ahorro_real',
+                        'dif_ingreso',
+                        'dif_ahorro',
+                        'gastos_fijos_est',
+                        'gastos_fijos_real',
+                      ].includes(col.field) ? (
+                      <span>{formatCurrency(mes[col.field])}</span>
                     ) : (
                       <span>{mes[col.field]}</span>
                     )}

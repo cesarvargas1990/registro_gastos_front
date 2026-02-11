@@ -3,26 +3,30 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import TablaReportes from '../src/TablaReportes.jsx';
 
 jest.mock('axios', () => ({
-  get: jest.fn(() => Promise.resolve({ data: [
-    {
-      id: 1,
-      descripcion: 'Test Desc',
-      valor: 1234567,
-      fecha: '2026-01-01',
-      nombre_categoria: 'Ingreso',
-      categoria_id: 1,
-      fecha_final_pago: '2026-01-10',
-    },
-    {
-      id: 2,
-      descripcion: 'Otro Desc',
-      valor: 7654321,
-      fecha: '2026-02-01',
-      nombre_categoria: 'Gasto',
-      categoria_id: 2,
-      fecha_final_pago: '2026-02-10',
-    },
-  ]})),
+  get: jest.fn(() =>
+    Promise.resolve({
+      data: [
+        {
+          id: 1,
+          descripcion: 'Test Desc',
+          valor: 1234567,
+          fecha: '2026-01-01',
+          nombre_categoria: 'Ingreso',
+          categoria_id: 1,
+          fecha_final_pago: '2026-01-10',
+        },
+        {
+          id: 2,
+          descripcion: 'Otro Desc',
+          valor: 7654321,
+          fecha: '2026-02-01',
+          nombre_categoria: 'Gasto',
+          categoria_id: 2,
+          fecha_final_pago: '2026-02-10',
+        },
+      ],
+    })
+  ),
   delete: jest.fn(() => Promise.resolve()),
 }));
 
@@ -30,7 +34,7 @@ jest.mock('axios', () => ({
 jest.mock('../src/FiltroCategorias.jsx', () => ({
   __esModule: true,
   default: ({ onChange }) => (
-    <select data-testid="mock-filtro" onChange={e => onChange(e.target.value)}>
+    <select data-testid="mock-filtro" onChange={(e) => onChange(e.target.value)}>
       <option value="">Todas</option>
       <option value="1">Ingreso</option>
       <option value="2">Gasto</option>

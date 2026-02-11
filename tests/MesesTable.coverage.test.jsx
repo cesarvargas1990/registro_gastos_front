@@ -3,26 +3,30 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import MesesTable from '../src/MesesTable.jsx';
 
 jest.mock('axios', () => ({
-  get: jest.fn(() => Promise.resolve({ data: [
-    {
-      id: 1,
-      anio: 2026,
-      numero_mes: 1,
-      nombre: 'Enero',
-      meta_ahorro: 1500000,
-      ingreso_neto: 9305824,
-      estimado_gastos_fijos: 4269637,
-    },
-    {
-      id: 2,
-      anio: 2026,
-      numero_mes: 2,
-      nombre: 'Febrero',
-      meta_ahorro: 3000000,
-      ingreso_neto: 9305824,
-      estimado_gastos_fijos: 4269637,
-    },
-  ]})),
+  get: jest.fn(() =>
+    Promise.resolve({
+      data: [
+        {
+          id: 1,
+          anio: 2026,
+          numero_mes: 1,
+          nombre: 'Enero',
+          meta_ahorro: 1500000,
+          ingreso_neto: 9305824,
+          estimado_gastos_fijos: 4269637,
+        },
+        {
+          id: 2,
+          anio: 2026,
+          numero_mes: 2,
+          nombre: 'Febrero',
+          meta_ahorro: 3000000,
+          ingreso_neto: 9305824,
+          estimado_gastos_fijos: 4269637,
+        },
+      ],
+    })
+  ),
   put: jest.fn(() => Promise.resolve()),
 }));
 
