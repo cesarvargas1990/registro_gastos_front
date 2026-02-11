@@ -1,7 +1,7 @@
 import { formateaMoneda, formateaFecha } from '../src/utils/format.js';
 
 test('formateaMoneda retorna string con $', () => {
-  expect(formateaMoneda(100)).toBe('$100.00');
+  expect(formateaMoneda(100)).toBe('$ 100');
 });
 
 test('formateaFecha retorna fecha formateada', () => {

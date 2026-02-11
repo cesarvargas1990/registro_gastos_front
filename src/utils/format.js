@@ -1,5 +1,7 @@
 export function formateaMoneda(value) {
-  return `$${Number(value ?? 0).toFixed(2)}`;
+  // Format as $X.XXX.XXX with no decimals, using thousands separator
+  const num = Number(value ?? 0);
+  return `$ ${num.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 }
 
 export const formatCurrency = formateaMoneda;
