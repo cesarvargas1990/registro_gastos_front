@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import GastosFijosSection from '../src/components/dashboard/GastosFijosSection.jsx';
 
 describe('GastosFijosSection', () => {
@@ -28,5 +28,28 @@ describe('GastosFijosSection', () => {
     expect(screen.getAllByText(/\$\s*200,00/).length).toBeGreaterThan(0);
     expect(screen.getByText(/total por mes/i)).toBeInTheDocument();
     expect(screen.getByText(/pendiente/i)).toBeInTheDocument();
+  });
+
+  it('ejecuta onToggleGastoFijo al cambiar un checkbox', () => {
+    const onToggleGastoFijo = jest.fn();
+    const resumenTabla = [{ Descripción: 'Renta', Valor: 1000, Enero: false, Febrero: false }];
+    const resumenMensual = [
+      { Mes: 'Enero', Total_Mensual: 1200, Pendiente_gastoFijo: 0 },
+      { Mes: 'Febrero', Total_Mensual: 200, Pendiente_gastoFijo: 1000 },
+    ];
+    const meses = ['Enero', 'Febrero'];
+
+    render(
+      <GastosFijosSection
+        resumenTabla={resumenTabla}
+        resumenMensual={resumenMensual}
+        meses={meses}
+        onToggleGastoFijo={onToggleGastoFijo}
+      />
+    );
+
+    const checks = screen.getAllByRole('checkbox');
+    fireEvent.click(checks[0]);
+    expect(onToggleGastoFijo).toHaveBeenCalledWith(resumenTabla[0], 'Enero');
   });
 });

@@ -13,8 +13,18 @@ describe('ChartsSection', () => {
       { Mes: 'Febrero', Total_Mensual_Con_Adicionales: 2000 },
     ];
     const resumenGastos = [
-      { mes: 'Enero', meta_ahorro: 500, disponible_estimado_cubriendo_gastos: 300, disponible_estimado_sin_cubrir_gastos: 200 },
-      { mes: 'Febrero', meta_ahorro: 600, disponible_estimado_cubriendo_gastos: 400, disponible_estimado_sin_cubrir_gastos: 300 },
+      {
+        mes: 'Enero',
+        meta_ahorro: 500,
+        disponible_estimado_cubriendo_gastos: 300,
+        disponible_estimado_sin_cubrir_gastos: 200,
+      },
+      {
+        mes: 'Febrero',
+        meta_ahorro: 600,
+        disponible_estimado_cubriendo_gastos: 400,
+        disponible_estimado_sin_cubrir_gastos: 300,
+      },
     ];
     render(<ChartsSection resumenMensual={resumenMensual} resumenGastos={resumenGastos} />);
     expect(screen.getByText(/total por mes/i)).toBeInTheDocument();

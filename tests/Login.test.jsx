@@ -22,7 +22,7 @@ test('login exitoso llama onLogin', () => {
 });
 
 test('login fallido muestra alerta', () => {
-  window.alert = jest.fn();
+  globalThis.alert = jest.fn();
   render(<Login onLogin={() => {}} />);
   fireEvent.change(screen.getByPlaceholderText(/correo/i), {
     target: { value: 'user@mail.com' },
@@ -31,5 +31,5 @@ test('login fallido muestra alerta', () => {
     target: { value: 'wrongpass' },
   });
   fireEvent.click(screen.getByText(/entrar/i));
-  expect(window.alert).toHaveBeenCalledWith('Credenciales inválidas');
+  expect(globalThis.alert).toHaveBeenCalledWith('Credenciales inválidas');
 });
