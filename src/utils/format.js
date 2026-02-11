@@ -1,11 +1,14 @@
+
+
 export function formateaMoneda(value) {
   return `$${Number(value ?? 0).toFixed(2)}`;
 }
 
-// Alias for compatibility with dashboard components
 export const formatCurrency = formateaMoneda;
 
+
 export function formateaFecha(fecha) {
-  const d = new Date(fecha);
-  return d.toLocaleDateString('es-CO');
+  // Parse date string as UTC to avoid timezone offset
+  const [year, month, day] = fecha.split('-');
+  return `${parseInt(day, 10)}/${parseInt(month, 10)}/${year}`;
 }

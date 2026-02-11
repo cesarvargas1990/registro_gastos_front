@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import Dashboard from '../src/Dashboard.jsx';
 jest.mock('axios');
-jest.mock('../utils/api.js', () => ({
+jest.mock('../src/utils/api.js', () => ({
   getJson: jest.fn(() => Promise.resolve([])),
   postJson: jest.fn(() => Promise.resolve()),
 }));

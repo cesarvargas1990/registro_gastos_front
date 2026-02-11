@@ -4,7 +4,7 @@ import GastosForm from '../src/GastosForm.jsx';
 import axios from 'axios';
 
 // Mock FiltroCategorias para evitar fetch real y errores de categorias.map
-jest.mock('../FiltroCategorias', () => (props) => (
+jest.mock('../src/FiltroCategorias', () => (props) => (
   <select
     data-testid="filtro-categorias"
     value={props.value}

@@ -5,5 +5,9 @@ export default {
   transform: {
     '^.+\\.[jt]sx?$': 'babel-jest',
   },
-  roots: ['<rootDir>/src'],
+  roots: ['<rootDir>/src', '<rootDir>/tests'],
+  testMatch: [
+    '**/tests/**/*.[jt]s?(x)',
+    '**/?(*.)+(spec|test).[tj]s?(x)'
+  ],
 };

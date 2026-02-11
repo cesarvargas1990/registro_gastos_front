@@ -1,7 +1,7 @@
-import { mapDashboardData } from '../src/utils/dashboardMaps.js';
+import dashboardMaps from '../src/utils/dashboardMaps.js';
 
 test('mapDashboardData retorna objeto mapeado', () => {
   const data = { total: 100 };
-  const mapped = mapDashboardData(data);
+  const mapped = dashboardMaps(data);
   expect(mapped).toHaveProperty('total');
 });
