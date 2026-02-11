@@ -1,10 +1,3 @@
-
-// Export as default function for test compatibility
-export default function dashboardMaps(data) {
-  return { ...data };
-}
-
-// Keep iconMap and labelMap for app usage
 import React from 'react';
 import {
   FaMoneyBillWave,
@@ -14,6 +7,11 @@ import {
   FaChartLine,
   FaRegCalendarCheck,
 } from 'react-icons/fa';
+
+// Export as default function for test compatibility
+export default function dashboardMaps(data) {
+  return { ...data };
+}
 
 export const iconMap = {
   ingreso_neto_estimado: <FaMoneyBillWave className="text-teal-400" />,
