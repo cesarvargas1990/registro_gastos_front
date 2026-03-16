@@ -90,8 +90,12 @@ describe('EstimadoVsRealSection', () => {
     const filaMesActualCeldas = within(filaMesActual).getAllByRole('cell');
     expect(filaMesActualCeldas[14]).not.toHaveClass('text-green-400');
 
-    const filaUltimoDisponiblePositivo = screen.getByText(mesUltimoDisponiblePositivo).closest('tr');
-    const filaUltimoDisponiblePositivoCeldas = within(filaUltimoDisponiblePositivo).getAllByRole('cell');
+    const filaUltimoDisponiblePositivo = screen
+      .getByText(mesUltimoDisponiblePositivo)
+      .closest('tr');
+    const filaUltimoDisponiblePositivoCeldas = within(filaUltimoDisponiblePositivo).getAllByRole(
+      'cell'
+    );
     expect(filaUltimoDisponiblePositivoCeldas[14]).toHaveClass('text-green-400');
 
     const filaSinDatos = screen.getByText(mesSinDatos).closest('tr');
