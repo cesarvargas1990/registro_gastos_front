@@ -39,5 +39,6 @@ export const labelMap = {
   ingresos_estimados_anio: 'Ingresos Estimados Año',
   meta_ahorro_anio: 'Meta de Ahorro Año',
   meta_ahorro_hasta_mes_actual: 'Meta Ahorro Hasta Mes Actual',
+  disp_desp_cump_meta_actual: 'Disp Desp Cump Meta',
   actual_menos_ahorro_real: 'Actual en cuenta ahorros - Bolsillo Ahorro',
 };

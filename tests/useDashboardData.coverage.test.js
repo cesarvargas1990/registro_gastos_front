@@ -43,6 +43,8 @@ describe('useDashboardData coverage', () => {
     expect(result.current.resumenGastos[0].valor).toBe(200);
     expect(result.current.resumenTabla[0].valor).toBe(300);
     expect(result.current.indicadoresDerivados[0].actual_menos_ahorro_real).toBe(500);
+    // Test para disp_desp_cump_meta_actual
+    expect(result.current.indicadoresDerivados[0].disp_desp_cump_meta_actual).toBeNull();
     expect(result.current.resumenRealVsEstimado[0].real).toBe(90);
     expect(result.current.totalesCategoria[0].total).toBe(100);
     expect(result.current.datos.length).toBeGreaterThan(0);
