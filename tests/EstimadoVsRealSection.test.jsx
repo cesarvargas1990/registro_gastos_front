@@ -19,7 +19,10 @@ const meses = [
 
 describe('EstimadoVsRealSection', () => {
   it('renderiza filas, resalta el mes actual y marca en verde solo el ultimo disponible positivo', () => {
-    const mesActual = meses[new Date().getMonth()];
+    const mesActualIndex = new Date().getMonth();
+    const mesActual = meses[mesActualIndex];
+    const mesSinDatos = meses[(mesActualIndex + 1) % meses.length];
+    const mesUltimoDisponiblePositivo = meses[(mesActualIndex + 2) % meses.length];
     const resumenRealVsEstimado = [
       {
         mes: mesActual,
@@ -39,7 +42,7 @@ describe('EstimadoVsRealSection', () => {
         disp_desp_cump_meta: 111,
       },
       {
-        mes: 'Abril',
+        mes: mesSinDatos,
         ingreso_neto_est: 0,
         ingreso_real: undefined,
         dif_ingreso: 0,
@@ -56,7 +59,7 @@ describe('EstimadoVsRealSection', () => {
         disp_desp_cump_meta: -22,
       },
       {
-        mes: 'Marzo',
+        mes: mesUltimoDisponiblePositivo,
         ingreso_neto_est: 5000,
         ingreso_real: 5100,
         dif_ingreso: 100,
@@ -78,19 +81,22 @@ describe('EstimadoVsRealSection', () => {
 
     expect(screen.getByText(/estimado vs real/i)).toBeInTheDocument();
 
-    const filaMesActual = screen.getByText(mesActual).closest('tr');
+    const filaMesActual = screen
+      .getAllByText(mesActual)
+      .map((cell) => cell.closest('tr'))
+      .find((row) => row?.classList.contains('bg-gray-700/60'));
     expect(filaMesActual).toHaveClass('bg-gray-700/60');
 
     const filaMesActualCeldas = within(filaMesActual).getAllByRole('cell');
     expect(filaMesActualCeldas[14]).not.toHaveClass('text-green-400');
 
-    const filaMarzo = screen.getByText('Marzo').closest('tr');
-    const filaMarzoCeldas = within(filaMarzo).getAllByRole('cell');
-    expect(filaMarzoCeldas[14]).toHaveClass('text-green-400');
+    const filaUltimoDisponiblePositivo = screen.getByText(mesUltimoDisponiblePositivo).closest('tr');
+    const filaUltimoDisponiblePositivoCeldas = within(filaUltimoDisponiblePositivo).getAllByRole('cell');
+    expect(filaUltimoDisponiblePositivoCeldas[14]).toHaveClass('text-green-400');
 
-    const filaAbril = screen.getByText('Abril').closest('tr');
-    const filaAbrilCeldas = within(filaAbril).getAllByRole('cell');
-    expect(filaAbrilCeldas[2].textContent).toMatch(/0,00/);
+    const filaSinDatos = screen.getByText(mesSinDatos).closest('tr');
+    const filaSinDatosCeldas = within(filaSinDatos).getAllByRole('cell');
+    expect(filaSinDatosCeldas[2].textContent).toMatch(/0,00/);
   });
 
   it('calcula y muestra los totales en el pie de tabla', () => {

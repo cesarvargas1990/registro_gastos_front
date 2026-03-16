@@ -60,7 +60,7 @@ export default function useDashboardData() {
     // Buscar el dato de Disp Desp Cump Meta del mes actual en resumenRealVsEstimado
     let dispDespCumpMetaActual = null;
     if (resumenRealVsEstimado && resumenRealVsEstimado.length) {
-      const filaMesActual = resumenRealVsEstimado.find(r => r.mes === mesActual);
+      const filaMesActual = resumenRealVsEstimado.find((r) => r.mes === mesActual);
       dispDespCumpMetaActual = filaMesActual ? filaMesActual.disp_desp_cump_meta : null;
     }
     return indicadores.length
