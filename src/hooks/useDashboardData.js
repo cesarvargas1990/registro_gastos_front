@@ -74,7 +74,7 @@ export default function useDashboardData() {
           },
         ]
       : [];
-  }, [indicadores]);
+  }, [indicadores, resumenRealVsEstimado]);
 
   const handleGastoFijoToggle = useCallback(
     (item, mes) => {
