@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import GastosFijosSection from '../src/components/dashboard/GastosFijosSection.jsx';
+import { formatCurrency } from '../src/utils/format.js';
 
 describe('GastosFijosSection', () => {
   it('renderiza resumen de gastos fijos y totales por mes', () => {
@@ -24,8 +25,12 @@ describe('GastosFijosSection', () => {
     expect(screen.getByText(/resumen de gastos fijos/i)).toBeInTheDocument();
     expect(screen.getByText('Renta')).toBeInTheDocument();
     expect(screen.getByText('Luz')).toBeInTheDocument();
-    expect(screen.getAllByText(/\$\s*1\.000,00/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/\$\s*200,00/).length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText((_, node) => node?.textContent === formatCurrency(1000)).length
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText((_, node) => node?.textContent === formatCurrency(200)).length
+    ).toBeGreaterThan(0);
     expect(screen.getByText(/total por mes/i)).toBeInTheDocument();
     expect(screen.getByText(/pendiente/i)).toBeInTheDocument();
   });

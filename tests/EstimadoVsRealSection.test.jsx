@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import EstimadoVsRealSection from '../src/components/dashboard/EstimadoVsRealSection.jsx';
+import { formatCurrency } from '../src/utils/format.js';
 
 const meses = [
   'Enero',
@@ -100,7 +101,7 @@ describe('EstimadoVsRealSection', () => {
 
     const filaSinDatos = screen.getByText(mesSinDatos).closest('tr');
     const filaSinDatosCeldas = within(filaSinDatos).getAllByRole('cell');
-    expect(filaSinDatosCeldas[2].textContent).toMatch(/0,00/);
+    expect(filaSinDatosCeldas[2].textContent).toBe(formatCurrency(0));
   });
 
   it('calcula y muestra los totales en el pie de tabla', () => {
@@ -146,8 +147,8 @@ describe('EstimadoVsRealSection', () => {
     const filaTotales = screen.getByText('Totales').closest('tr');
     const celdasTotales = within(filaTotales).getAllByRole('cell');
 
-    expect(celdasTotales[1].textContent).toMatch(/4\.000,00/);
-    expect(celdasTotales[2].textContent).toMatch(/4\.500,00/);
-    expect(celdasTotales[13].textContent).toMatch(/610,00/);
+    expect(celdasTotales[1].textContent).toBe(formatCurrency(4000));
+    expect(celdasTotales[2].textContent).toBe(formatCurrency(4500));
+    expect(celdasTotales[13].textContent).toBe(formatCurrency(610));
   });
 });

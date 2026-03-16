@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import TotalesCategoriaSection from '../src/components/dashboard/TotalesCategoriaSection.jsx';
+import { formatCurrency } from '../src/utils/format.js';
 
 describe('TotalesCategoriaSection', () => {
   it('renderiza totales por categoria', () => {
@@ -12,7 +13,9 @@ describe('TotalesCategoriaSection', () => {
     expect(screen.getByText(/totales por categoria/i)).toBeInTheDocument();
     expect(screen.getByText('Alimentos')).toBeInTheDocument();
     expect(screen.getByText('Transporte')).toBeInTheDocument();
-    expect(screen.getByText(/\$\s*1\.500,00/)).toBeInTheDocument();
-    expect(screen.getByText(/\$\s*800,00/)).toBeInTheDocument();
+    expect(
+      screen.getByText((_, node) => node?.textContent === formatCurrency(1500))
+    ).toBeInTheDocument();
+    expect(screen.getByText((_, node) => node?.textContent === formatCurrency(800))).toBeInTheDocument();
   });
 });

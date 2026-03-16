@@ -22,7 +22,9 @@ describe('IndicadoresSection', () => {
   });
 
   it('usa fallback de icono y label cuando no existen en los mapas', () => {
-    render(<IndicadoresSection indicadores={[{ clave_desconocida: 250 }]} iconMap={{}} labelMap={{}} />);
+    render(
+      <IndicadoresSection indicadores={[{ clave_desconocida: 250 }]} iconMap={{}} labelMap={{}} />
+    );
 
     expect(screen.getByText('clave_desconocida')).toBeInTheDocument();
     expect(screen.getByText(/\$\s*250/)).toBeInTheDocument();
