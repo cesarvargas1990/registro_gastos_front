@@ -20,4 +20,19 @@ describe('IndicadoresSection', () => {
     expect(screen.getByText(/\$\s*1\.000/)).toBeInTheDocument();
     expect(screen.getByText(/\$\s*500/)).toBeInTheDocument();
   });
+
+  it('usa fallback de icono y label cuando no existen en los mapas', () => {
+    render(<IndicadoresSection indicadores={[{ clave_desconocida: 250 }]} iconMap={{}} labelMap={{}} />);
+
+    expect(screen.getByText('clave_desconocida')).toBeInTheDocument();
+    expect(screen.getByText(/\$\s*250/)).toBeInTheDocument();
+    expect(document.querySelector('svg')).toBeTruthy();
+  });
+
+  it('renderiza solo el titulo cuando no hay indicadores', () => {
+    render(<IndicadoresSection indicadores={[]} iconMap={{}} labelMap={{}} />);
+
+    expect(screen.getByText(/indicadores financieros/i)).toBeInTheDocument();
+    expect(screen.queryByText('clave_desconocida')).not.toBeInTheDocument();
+  });
 });

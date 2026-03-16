@@ -51,6 +51,38 @@ describe('useDashboardData coverage', () => {
     expect(result.current.columnas.includes('Mes')).toBe(true);
   });
 
+  it('deriva disp_desp_cump_meta_actual cuando existe el mes actual y maneja faltantes numericos', async () => {
+    const mesActual = resultMesActual();
+    setGetJsonImplementation({
+      '/dashboard-dinamico': () =>
+        Promise.resolve([{ actual_en_cuenta_ahorros: undefined, ahorro_real: undefined }]),
+      '/resumen_estimado_vs_real': () =>
+        Promise.resolve([{ mes: mesActual, disp_desp_cump_meta: 321 }]),
+    });
+
+    const { result } = renderHook(() => useDashboardData());
+
+    await waitFor(() => {
+      expect(result.current.indicadoresDerivados[0].disp_desp_cump_meta_actual).toBe(321);
+    });
+
+    expect(result.current.indicadoresDerivados[0].actual_menos_ahorro_real).toBe(0);
+  });
+
+  it('expone indicadoresDerivados vacio si dashboard-dinamico no trae datos', async () => {
+    setGetJsonImplementation({
+      '/dashboard-dinamico': () => Promise.resolve([]),
+    });
+
+    const { result } = renderHook(() => useDashboardData());
+
+    await waitFor(() => {
+      expect(result.current.resumenMensual.length).toBe(1);
+    });
+
+    expect(result.current.indicadoresDerivados).toEqual([]);
+  });
+
   it('keeps datos y columnas vacías si resumen categorias mensual llega vacío', async () => {
     setGetJsonImplementation({
       '/resumen-categorias-mensual': () => Promise.resolve([]),
@@ -159,3 +191,9 @@ describe('useDashboardData coverage', () => {
     expect(window.alert).toHaveBeenCalledWith('Ya fue registrado este gasto');
   });
 });
+
+function resultMesActual() {
+  return new Intl.DateTimeFormat('es-CO', { month: 'long' })
+    .format(new Date())
+    .replace(/^./, (char) => char.toUpperCase());
+}
