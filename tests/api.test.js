@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { API_BASE, getJson, postJson, loginUser } from '../src/utils/api.js';
+import { getJson, postJson, loginUser } from '../src/utils/api.js';
 
 jest.mock('axios', () => ({
   get: jest.fn(),

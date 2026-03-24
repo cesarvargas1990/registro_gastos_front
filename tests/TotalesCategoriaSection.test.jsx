@@ -16,6 +16,8 @@ describe('TotalesCategoriaSection', () => {
     expect(
       screen.getByText((_, node) => node?.textContent === formatCurrency(1500))
     ).toBeInTheDocument();
-    expect(screen.getByText((_, node) => node?.textContent === formatCurrency(800))).toBeInTheDocument();
+    expect(
+      screen.getByText((_, node) => node?.textContent === formatCurrency(800))
+    ).toBeInTheDocument();
   });
 });
