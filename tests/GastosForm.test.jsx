@@ -109,4 +109,30 @@ describe('GastosForm', () => {
     fireEvent.change(desc, { target: { value: 'nuevo' } });
     expect(desc.value).toBe('nuevo');
   });
+
+  it('permite diligenciar fecha final y ejecuta callbacks al guardar', async () => {
+    axios.post.mockResolvedValueOnce({});
+    const onClose = jest.fn();
+    const onSuccess = jest.fn();
+
+    render(<GastosForm onClose={onClose} onSuccess={onSuccess} />);
+    fireEvent.change(screen.getByPlaceholderText(/descripción/i), { target: { value: 'Compra' } });
+    fireEvent.change(screen.getByPlaceholderText(/valor/i), { target: { value: '123' } });
+
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    fireEvent.change(dateInputs[0], { target: { value: '2025-01-01' } });
+    fireEvent.change(screen.getByTestId('filtro-categorias'), { target: { value: '1' } });
+    fireEvent.change(dateInputs[1], { target: { value: '2025-01-31' } });
+    fireEvent.click(screen.getByText(/guardar/i));
+
+    await waitFor(() => expect(axios.post).toHaveBeenCalled());
+    expect(axios.post).toHaveBeenCalledWith(
+      expect.stringContaining('/movimientos'),
+      expect.objectContaining({
+        fecha_final_pago: '2025-01-31',
+      })
+    );
+    expect(onSuccess).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
+  });
 });

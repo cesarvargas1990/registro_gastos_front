@@ -39,4 +39,14 @@ describe('ResumenCategoriasSection', () => {
     expect(celdas[1]).toBeEmptyDOMElement();
     expect(celdas[2].textContent).toMatch(/1\.500,00/);
   });
+
+  it('mantiene texto sin formato monetario cuando la columna no es numérica', () => {
+    const columnas = ['Mes', 'Comentario', 'Ahorro'];
+    const datos = [{ Mes: 'Enero', Comentario: 'sin cambios', Ahorro: 200 }];
+
+    render(<ResumenCategoriasSection columnas={columnas} datos={datos} />);
+
+    expect(screen.getByText('sin cambios')).toBeInTheDocument();
+    expect(screen.getAllByText(/\$\s*200,00/)).toHaveLength(2);
+  });
 });

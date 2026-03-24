@@ -57,4 +57,23 @@ describe('GastosFijosSection', () => {
     fireEvent.click(checks[0]);
     expect(onToggleGastoFijo).toHaveBeenCalledWith(resumenTabla[0], 'Enero');
   });
+
+  it('muestra cero cuando no hay resumen mensual para un mes', () => {
+    const resumenTabla = [{ Descripción: 'Renta', Valor: 1000, Enero: false, Febrero: false }];
+    const resumenMensual = [{ Mes: 'Enero', Total_Mensual: 1200, Pendiente_gastoFijo: 10 }];
+    const meses = ['Enero', 'Febrero'];
+
+    render(
+      <GastosFijosSection
+        resumenTabla={resumenTabla}
+        resumenMensual={resumenMensual}
+        meses={meses}
+        onToggleGastoFijo={() => {}}
+      />
+    );
+
+    expect(
+      screen.getAllByText((_, node) => node?.textContent === formatCurrency(0)).length
+    ).toBeGreaterThan(0);
+  });
 });

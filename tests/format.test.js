@@ -1,4 +1,4 @@
-import { formateaMoneda, formateaFecha } from '../src/utils/format.js';
+import { formatCurrency, formateaMoneda, formateaFecha } from '../src/utils/format.js';
 
 test('formateaMoneda retorna string con $ y separador de miles', () => {
   expect(formateaMoneda(9305824)).toBe('$ 9.305.824');
@@ -14,4 +14,13 @@ test('formateaMoneda retorna formato con decimales si se requiere', () => {
 
 test('formateaFecha retorna fecha formateada', () => {
   expect(formateaFecha('2026-02-10')).toBe('10/2/2026');
+});
+
+test('formateaFecha retorna vacío cuando no recibe fecha', () => {
+  expect(formateaFecha()).toBe('');
+  expect(formateaFecha(null)).toBe('');
+});
+
+test('formatCurrency permite sobrescribir opciones', () => {
+  expect(formatCurrency(1500, { maximumFractionDigits: 0 })).toContain('$ 1.500');
 });

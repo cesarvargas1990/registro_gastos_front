@@ -151,4 +151,51 @@ describe('EstimadoVsRealSection', () => {
     expect(celdasTotales[2].textContent).toBe(formatCurrency(4500));
     expect(celdasTotales[13].textContent).toBe(formatCurrency(610));
   });
+
+  it('no resalta en verde cuando ningun disp_desp_cump_meta es positivo', () => {
+    const resumenRealVsEstimado = [
+      {
+        mes: 'Enero',
+        ingreso_neto_est: 1000,
+        ingreso_real: 900,
+        dif_ingreso: -100,
+        meta_ahorro_est: 300,
+        ahorro_real: 200,
+        dif_ahorro: -100,
+        gastos_fijos_est: 600,
+        gastos_fijos_real: 650,
+        dif_gastos_fijo: 50,
+        gastos_adicionales: 120,
+        ingresos_extra: 0,
+        disponible_estimado: 80,
+        disponible_cuenta: 40,
+        disp_desp_cump_meta: 0,
+      },
+      {
+        mes: 'Febrero',
+        ingreso_neto_est: 1000,
+        ingreso_real: 900,
+        dif_ingreso: -100,
+        meta_ahorro_est: 300,
+        ahorro_real: 200,
+        dif_ahorro: -100,
+        gastos_fijos_est: 600,
+        gastos_fijos_real: 650,
+        dif_gastos_fijo: 50,
+        gastos_adicionales: 120,
+        ingresos_extra: 0,
+        disponible_estimado: 80,
+        disponible_cuenta: 40,
+        disp_desp_cump_meta: -10,
+      },
+    ];
+
+    render(<EstimadoVsRealSection resumenRealVsEstimado={resumenRealVsEstimado} meses={meses} />);
+
+    const filas = screen.getAllByRole('row').slice(1, 3);
+    filas.forEach((fila) => {
+      const celdas = within(fila).getAllByRole('cell');
+      expect(celdas[14]).not.toHaveClass('text-green-400');
+    });
+  });
 });

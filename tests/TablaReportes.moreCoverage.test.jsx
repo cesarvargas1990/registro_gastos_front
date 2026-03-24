@@ -56,6 +56,17 @@ const getData = () => [
   },
 ];
 
+const getPaginatedData = () =>
+  Array.from({ length: 25 }, (_, index) => ({
+    id: index + 1,
+    descripcion: `Movimiento ${index + 1}`,
+    valor: index + 100,
+    fecha: '2026-01-01',
+    nombre_categoria: 'Ingreso',
+    categoria_id: 1,
+    fecha_final_pago: null,
+  }));
+
 describe('TablaReportes more coverage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -136,5 +147,31 @@ describe('TablaReportes more coverage', () => {
       expect(screen.queryByTestId('mock-gastosform')).not.toBeInTheDocument();
     });
     expect(axios.get).toHaveBeenCalledTimes(2);
+  });
+
+  it('permite cambiar de página cuando hay más resultados que el límite', async () => {
+    axios.get.mockResolvedValueOnce({ data: getPaginatedData() });
+
+    render(<TablaReportes />);
+
+    expect(await screen.findByText('Movimiento 1')).toBeInTheDocument();
+    expect(screen.getByText('Movimiento 20')).toBeInTheDocument();
+    expect(screen.queryByText('Movimiento 21')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByText('2').find((element) => element.tagName === 'BUTTON'));
+
+    expect(await screen.findByText('Movimiento 21')).toBeInTheDocument();
+    expect(screen.queryByText('Movimiento 1')).not.toBeInTheDocument();
+  });
+
+  it('mantiene el orden cuando el campo ordenado tiene valores iguales', async () => {
+    render(<TablaReportes />);
+
+    expect(await screen.findByText('Ingreso A')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Valor'));
+
+    const filas = screen.getAllByRole('row');
+    expect(filas[1]).toHaveTextContent('Ingreso A');
+    expect(filas[2]).toHaveTextContent('Gasto B');
   });
 });
