@@ -1,17 +1,23 @@
 import React, { useState } from 'react';
+import { loginUser } from './utils/api';
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (email === 'admin@mail.com' && password === '123456') {
-      localStorage.setItem('authToken', 'fake-token'); // para persistencia
+    try {
+      await loginUser(email, password);
       onLogin();
-    } else {
+    } catch (error) {
+      console.error('Error autenticando usuario:', error);
       alert('Credenciales inválidas');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,9 +41,10 @@ export default function Login({ onLogin }) {
         />
         <button
           type="submit"
+          disabled={loading}
           className="w-full bg-teal-500 hover:bg-teal-600 text-white p-2 rounded"
         >
-          Entrar
+          {loading ? 'Validando...' : 'Entrar'}
         </button>
       </form>
     </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import FiltroCategorias from './FiltroCategorias';
+import { API_BASE } from './utils/api';
 
 export default function GastosForm({ modoModal = false, gastoInicial, onClose, onSuccess }) {
   const [descripcion, setDescripcion] = useState('');
@@ -43,7 +44,7 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
       if (gastoInicial) {
         console.log(gastoInicial);
         console.log(descripcion, valor, fecha, categoriaId, fechaFinalPago);
-        await axios.put(`http://147.93.1.252:5000/movimientos/${gastoInicial.id}`, {
+        await axios.put(`${API_BASE}/movimientos/${gastoInicial.id}`, {
           descripcion,
           valor,
           fecha,
@@ -52,7 +53,7 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
         });
       } else {
         console.log(descripcion, valor, fecha, categoriaId, fechaFinalPago);
-        await axios.post('http://147.93.1.252:5000/movimientos', {
+        await axios.post(`${API_BASE}/movimientos`, {
           descripcion,
           valor,
           fecha,

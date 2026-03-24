@@ -3,6 +3,7 @@ import FiltroCategorias from './FiltroCategorias';
 import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 import GastosForm from './GastosForm';
+import { API_BASE } from './utils/api';
 
 export default function TablaReportes() {
   const [movimientos, setMovimientos] = useState([]);
@@ -34,7 +35,7 @@ export default function TablaReportes() {
 
   const cargarMovimientos = () => {
     axios
-      .get('http://147.93.1.252:5000/movimientos')
+      .get(`${API_BASE}/movimientos`)
       .then((response) => setMovimientos(response.data))
       .catch((error) => console.error('Error cargando movimientos:', error));
   };
@@ -46,7 +47,7 @@ export default function TablaReportes() {
 
   const eliminarConfirmado = async () => {
     try {
-      await axios.delete(`http://147.93.1.252:5000/movimientos/${movAEliminar.id}`);
+      await axios.delete(`${API_BASE}/movimientos/${movAEliminar.id}`);
       cargarMovimientos();
       setMostrarModal(false);
       setMovAEliminar(null);

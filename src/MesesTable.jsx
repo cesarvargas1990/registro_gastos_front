@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { formatCurrency } from './utils/format';
-
-const BASE_URL = 'http://147.93.1.252:5000';
+import { API_BASE } from './utils/api';
 
 const parseNumber = (value) => {
   if (value === null || value === undefined) return null;
@@ -50,7 +49,7 @@ export default function MesesTable() {
 
   const cargarMeses = () => {
     axios
-      .get(`${BASE_URL}/meses`)
+      .get(`${API_BASE}/meses`)
       .then((response) => {
         setMeses(response.data);
         setMesesIniciales(response.data);
@@ -93,7 +92,7 @@ export default function MesesTable() {
         estimado_gastos_fijos: parseNumber(mes.estimado_gastos_fijos),
       }));
 
-      await axios.put(`${BASE_URL}/meses`, { meses: payload });
+      await axios.put(`${API_BASE}/meses`, { meses: payload });
       setMensaje('Cambios guardados correctamente.');
       cargarMeses();
     } catch (err) {

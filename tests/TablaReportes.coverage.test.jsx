@@ -29,6 +29,12 @@ jest.mock('axios', () => ({
     mockData = mockData.filter((item) => item.id !== id);
     return Promise.resolve();
   }),
+  defaults: {},
+  interceptors: {
+    request: {
+      use: jest.fn(),
+    },
+  },
 }));
 // FiltroCategorias mock
 jest.mock('../src/FiltroCategorias.jsx', () => ({

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-
-const BASE_URL = 'http://147.93.1.252:5000';
+import { API_BASE } from './utils/api';
 
 const parseNumber = (value) => {
   if (value === null || value === undefined) return null;
@@ -24,7 +23,7 @@ export default function GastosFijosTable() {
 
   const cargarGastos = () => {
     axios
-      .get(`${BASE_URL}/gastos-fijos`)
+      .get(`${API_BASE}/gastos-fijos`)
       .then((response) => {
         setGastos(response.data);
         setError('');
@@ -65,7 +64,7 @@ export default function GastosFijosTable() {
 
     setGuardando(true);
     try {
-      await axios.post(`${BASE_URL}/gastos-fijos`, {
+      await axios.post(`${API_BASE}/gastos-fijos`, {
         descripcion,
         valor: parseNumber(valor),
       });
@@ -92,7 +91,7 @@ export default function GastosFijosTable() {
 
     setGuardando(true);
     try {
-      await axios.put(`${BASE_URL}/gastos-fijos/${id}`, {
+      await axios.put(`${API_BASE}/gastos-fijos/${id}`, {
         descripcion: editDescripcion,
         valor: parseNumber(editValor),
       });
@@ -112,7 +111,7 @@ export default function GastosFijosTable() {
     setError('');
     setGuardando(true);
     try {
-      await axios.delete(`${BASE_URL}/gastos-fijos/${id}`);
+      await axios.delete(`${API_BASE}/gastos-fijos/${id}`);
       setMensaje('Gasto fijo eliminado.');
       cargarGastos();
     } catch (err) {

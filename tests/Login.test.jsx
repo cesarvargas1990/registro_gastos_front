@@ -1,6 +1,12 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Login from '../src/Login.jsx';
+
+jest.mock('../src/utils/api', () => ({
+  loginUser: jest.fn(),
+}));
+
+const { loginUser } = require('../src/utils/api');
 
 test('renderiza Login correctamente', () => {
   render(<Login onLogin={() => {}} />);
@@ -8,7 +14,8 @@ test('renderiza Login correctamente', () => {
   expect(screen.getByText(/entrar/i)).toBeInTheDocument();
 });
 
-test('login exitoso llama onLogin', () => {
+test('login exitoso llama onLogin', async () => {
+  loginUser.mockResolvedValueOnce('jwt-token');
   const onLogin = jest.fn();
   render(<Login onLogin={onLogin} />);
   fireEvent.change(screen.getByPlaceholderText(/correo/i), {
@@ -18,11 +25,14 @@ test('login exitoso llama onLogin', () => {
     target: { value: '123456' },
   });
   fireEvent.click(screen.getByText(/entrar/i));
+  await waitFor(() => expect(loginUser).toHaveBeenCalledWith('admin@mail.com', '123456'));
   expect(onLogin).toHaveBeenCalled();
 });
 
-test('login fallido muestra alerta', () => {
+test('login fallido muestra alerta', async () => {
+  loginUser.mockRejectedValueOnce(new Error('Credenciales inválidas'));
   globalThis.alert = jest.fn();
+  jest.spyOn(console, 'error').mockImplementation(() => {});
   render(<Login onLogin={() => {}} />);
   fireEvent.change(screen.getByPlaceholderText(/correo/i), {
     target: { value: 'user@mail.com' },
@@ -31,5 +41,6 @@ test('login fallido muestra alerta', () => {
     target: { value: 'wrongpass' },
   });
   fireEvent.click(screen.getByText(/entrar/i));
-  expect(globalThis.alert).toHaveBeenCalledWith('Credenciales inválidas');
+  await waitFor(() => expect(globalThis.alert).toHaveBeenCalledWith('Credenciales inválidas'));
+  console.error.mockRestore();
 });

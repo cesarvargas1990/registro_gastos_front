@@ -6,6 +6,12 @@ import MesesTable from '../src/MesesTable.jsx';
 jest.mock('axios', () => ({
   get: jest.fn(),
   put: jest.fn(),
+  defaults: {},
+  interceptors: {
+    request: {
+      use: jest.fn(),
+    },
+  },
 }));
 
 const mesesMock = [
@@ -78,7 +84,7 @@ describe('MesesTable more coverage', () => {
       expect(axios.put).toHaveBeenCalled();
     });
     expect(axios.put).toHaveBeenCalledWith(
-      'http://147.93.1.252:5000/meses',
+      `${require('../src/utils/api.js').API_BASE}/meses`,
       expect.objectContaining({
         meses: expect.arrayContaining([
           expect.objectContaining({

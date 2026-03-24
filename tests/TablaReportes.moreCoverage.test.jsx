@@ -6,6 +6,12 @@ import TablaReportes from '../src/TablaReportes.jsx';
 jest.mock('axios', () => ({
   get: jest.fn(),
   delete: jest.fn(),
+  defaults: {},
+  interceptors: {
+    request: {
+      use: jest.fn(),
+    },
+  },
 }));
 
 jest.mock('../src/FiltroCategorias.jsx', () => ({

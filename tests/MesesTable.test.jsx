@@ -27,6 +27,12 @@ jest.mock('axios', () => ({
     })
   ),
   put: jest.fn(() => Promise.resolve()),
+  defaults: {},
+  interceptors: {
+    request: {
+      use: jest.fn(),
+    },
+  },
 }));
 
 describe('MesesTable', () => {
