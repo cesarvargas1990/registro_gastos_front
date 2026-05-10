@@ -26,7 +26,7 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
               <th className="px-4 py-2 border border-gray-600">Ingresos Extra</th>
               <th className="px-4 py-2 border border-gray-600">Disponible Estimado</th>
               <th className="px-4 py-2 border border-gray-600">Disponible Cuenta</th>
-              <th className="px-4 py-2 border border-gray-600">Disp Desp Cump Meta</th>
+              <th className="px-4 py-2 border border-gray-600">Saldo Acumulado tras Meta</th>
             </tr>
           </thead>
           <tbody>

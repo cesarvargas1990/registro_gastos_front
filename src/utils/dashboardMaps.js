@@ -29,7 +29,7 @@ export const labelMap = {
   ingreso_neto_estimado: 'Ingresos Estimados Año',
   meta_ahorro_estimada: 'Meta de Ahorro Año',
   ahorro_real: 'Bolsillo Ahorro',
-  faltante_meta_actual: 'Faltante de Meta Actual',
+  faltante_meta_actual: 'Faltante Meta a Hoy',
   gastos_fijos_estimados: 'Gastos Fijos Estimados Año',
   actual_en_cuenta_ahorros: 'Actual en cuenta ahorros',
   meta_ahorro_hasta_hoy: 'Meta Ahorro Hasta Mes Actual',
@@ -39,6 +39,6 @@ export const labelMap = {
   ingresos_estimados_anio: 'Ingresos Estimados Año',
   meta_ahorro_anio: 'Meta de Ahorro Año',
   meta_ahorro_hasta_mes_actual: 'Meta Ahorro Hasta Mes Actual',
-  disp_desp_cump_meta_actual: 'Disp Desp Cump Meta',
+  disp_desp_cump_meta_actual: 'Saldo Acumulado tras Meta',
   actual_menos_ahorro_real: 'Actual en cuenta ahorros - Bolsillo Ahorro',
 };
