@@ -5,6 +5,8 @@ import { formatCurrency } from '../../utils/format';
 export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) {
   const mesActual = meses[new Date().getMonth()];
   const filaMesActual = resumenRealVsEstimado.find((row) => row.mes === mesActual);
+  const renderSoloMesActual = (rowMes, value) =>
+    rowMes === mesActual ? formatCurrency(value) : '-';
 
   return (
     <section>
@@ -61,10 +63,10 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
                       {formatCurrency(row.meta_ahorro_est)}
                     </td>
                     <td className="px-4 py-2 border border-gray-700">
-                      {formatCurrency(row.ahorro_real)}
+                      {renderSoloMesActual(row.mes, row.ahorro_real)}
                     </td>
                     <td className="px-4 py-2 border border-gray-700">
-                      {formatCurrency(row.dif_ahorro)}
+                      {renderSoloMesActual(row.mes, row.dif_ahorro)}
                     </td>
                     <td className="px-4 py-2 border border-gray-700">
                       {formatCurrency(row.gastos_fijos_est)}

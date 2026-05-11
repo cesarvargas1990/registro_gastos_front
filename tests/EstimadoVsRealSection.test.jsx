@@ -90,6 +90,8 @@ describe('EstimadoVsRealSection', () => {
 
     const filaMesActualCeldas = within(filaMesActual).getAllByRole('cell');
     expect(filaMesActualCeldas[12]).not.toHaveClass('text-green-400');
+    expect(filaMesActualCeldas[5].textContent).toBe(formatCurrency(200));
+    expect(filaMesActualCeldas[6].textContent).toBe(formatCurrency(-100));
 
     const filaUltimoDisponiblePositivo = screen
       .getByText(mesUltimoDisponiblePositivo)
@@ -102,6 +104,8 @@ describe('EstimadoVsRealSection', () => {
     const filaSinDatos = screen.getByText(mesSinDatos).closest('tr');
     const filaSinDatosCeldas = within(filaSinDatos).getAllByRole('cell');
     expect(filaSinDatosCeldas[2].textContent).toBe(formatCurrency(0));
+    expect(filaSinDatosCeldas[5].textContent).toBe('-');
+    expect(filaSinDatosCeldas[6].textContent).toBe('-');
   });
 
   it('calcula y muestra los totales en el pie de tabla', () => {
