@@ -7,6 +7,11 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
   const filaMesActual = resumenRealVsEstimado.find((row) => row.mes === mesActual);
   const renderSoloMesActual = (rowMes, value) =>
     rowMes === mesActual ? formatCurrency(value) : '-';
+  const calcularDisponibleGastos = (row) =>
+    Number(row.ingreso_real ?? 0) -
+    Number(row.meta_ahorro_est ?? 0) -
+    Number(row.gastos_fijos_est ?? 0) -
+    Number(row.gastos_adicionales ?? 0);
 
   return (
     <section>
@@ -29,6 +34,7 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
               <th className="px-4 py-2 border border-gray-600">Dif Gastos Fijo</th>
               <th className="px-4 py-2 border border-gray-600">Gastos Adicionales</th>
               <th className="px-4 py-2 border border-gray-600">Disponible Estimado</th>
+              <th className="px-4 py-2 border border-gray-600">Disponible Gastos</th>
               <th className="px-4 py-2 border border-gray-600">Saldo Acumulado tras Meta</th>
             </tr>
           </thead>
@@ -82,6 +88,9 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
                     </td>
                     <td className="px-4 py-2 border border-gray-700">
                       {formatCurrency(row.disponible_estimado)}
+                    </td>
+                    <td className="px-4 py-2 border border-gray-700">
+                      {formatCurrency(calcularDisponibleGastos(row))}
                     </td>
                     <td className={highlightClass}>{formatCurrency(row.disp_desp_cump_meta)}</td>
                   </tr>
@@ -150,6 +159,11 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
                     (acc, r) => acc + Number(r.disponible_estimado ?? 0),
                     0
                   )
+                )}
+              </td>
+              <td className="px-4 py-2 border border-gray-700">
+                {formatCurrency(
+                  resumenRealVsEstimado.reduce((acc, r) => acc + calcularDisponibleGastos(r), 0)
                 )}
               </td>
               <td className="px-4 py-2 border border-gray-700"></td>

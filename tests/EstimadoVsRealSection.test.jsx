@@ -89,7 +89,8 @@ describe('EstimadoVsRealSection', () => {
     expect(filaMesActual).toHaveClass('bg-gray-700/60');
 
     const filaMesActualCeldas = within(filaMesActual).getAllByRole('cell');
-    expect(filaMesActualCeldas[12]).not.toHaveClass('text-green-400');
+    expect(filaMesActualCeldas[12].textContent).toBe(formatCurrency(-120));
+    expect(filaMesActualCeldas[13]).not.toHaveClass('text-green-400');
     expect(filaMesActualCeldas[5].textContent).toBe(formatCurrency(200));
     expect(filaMesActualCeldas[6].textContent).toBe(formatCurrency(-100));
 
@@ -99,13 +100,15 @@ describe('EstimadoVsRealSection', () => {
     const filaUltimoDisponiblePositivoCeldas = within(filaUltimoDisponiblePositivo).getAllByRole(
       'cell'
     );
-    expect(filaUltimoDisponiblePositivoCeldas[12]).toHaveClass('text-green-400');
+    expect(filaUltimoDisponiblePositivoCeldas[12].textContent).toBe(formatCurrency(1100));
+    expect(filaUltimoDisponiblePositivoCeldas[13]).toHaveClass('text-green-400');
 
     const filaSinDatos = screen.getByText(mesSinDatos).closest('tr');
     const filaSinDatosCeldas = within(filaSinDatos).getAllByRole('cell');
     expect(filaSinDatosCeldas[2].textContent).toBe(formatCurrency(0));
     expect(filaSinDatosCeldas[5].textContent).toBe('-');
     expect(filaSinDatosCeldas[6].textContent).toBe('-');
+    expect(filaSinDatosCeldas[12].textContent).toBe(formatCurrency(0));
   });
 
   it('calcula y muestra los totales en el pie de tabla', () => {
@@ -156,6 +159,7 @@ describe('EstimadoVsRealSection', () => {
     expect(celdasTotales[5].textContent).toBe(formatCurrency(0));
     expect(celdasTotales[6].textContent).toBe(formatCurrency(0));
     expect(celdasTotales[11].textContent).toBe(formatCurrency(650));
+    expect(celdasTotales[12].textContent).toBe(formatCurrency(2400));
   });
 
   it('no resalta en verde cuando ningun disp_desp_cump_meta es positivo', () => {
@@ -201,7 +205,7 @@ describe('EstimadoVsRealSection', () => {
     const filas = screen.getAllByRole('row').slice(1, 3);
     filas.forEach((fila) => {
       const celdas = within(fila).getAllByRole('cell');
-      expect(celdas[12]).not.toHaveClass('text-green-400');
+      expect(celdas[13]).not.toHaveClass('text-green-400');
     });
   });
 });
