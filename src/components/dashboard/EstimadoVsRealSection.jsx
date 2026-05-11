@@ -23,7 +23,6 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
               <th className="px-4 py-2 border border-gray-600">Gastos Fijos Real</th>
               <th className="px-4 py-2 border border-gray-600">Dif Gastos Fijo</th>
               <th className="px-4 py-2 border border-gray-600">Gastos Adicionales</th>
-              <th className="px-4 py-2 border border-gray-600">Ingresos Extra</th>
               <th className="px-4 py-2 border border-gray-600">Disponible Estimado</th>
               <th className="px-4 py-2 border border-gray-600">Disponible Cuenta</th>
               <th className="px-4 py-2 border border-gray-600">Saldo Acumulado tras Meta</th>
@@ -77,9 +76,6 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
                     </td>
                     <td className="px-4 py-2 border border-gray-700">
                       {formatCurrency(row.gastos_adicionales)}
-                    </td>
-                    <td className="px-4 py-2 border border-gray-700">
-                      {formatCurrency(row.ingresos_extra)}
                     </td>
                     <td className="px-4 py-2 border border-gray-700">
                       {formatCurrency(row.disponible_estimado)}
@@ -150,11 +146,6 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
                     (acc, r) => acc + Number(r.gastos_adicionales ?? 0),
                     0
                   )
-                )}
-              </td>
-              <td className="px-4 py-2 border border-gray-700">
-                {formatCurrency(
-                  resumenRealVsEstimado.reduce((acc, r) => acc + Number(r.ingresos_extra ?? 0), 0)
                 )}
               </td>
               <td className="px-4 py-2 border border-gray-700">
