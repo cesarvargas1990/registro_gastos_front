@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const LOCAL_API_BASE = 'http://127.0.0.1:5000';
-const REMOTE_API_BASE = 'http://147.93.1.252:5000';
+const LOCAL_API_BASE = '//127.0.0.1:5000';
+const REMOTE_API_BASE = '//147.93.1.252:5000';
 
 const resolveApiBase = () => {
   if (process.env.REACT_APP_API_BASE) {
@@ -14,6 +14,8 @@ const resolveApiBase = () => {
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return LOCAL_API_BASE;
     }
+
+    return `//${hostname}:5000`;
   }
 
   return REMOTE_API_BASE;
