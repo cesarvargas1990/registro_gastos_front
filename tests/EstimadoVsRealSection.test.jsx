@@ -89,7 +89,7 @@ describe('EstimadoVsRealSection', () => {
     expect(filaMesActual).toHaveClass('bg-gray-700/60');
 
     const filaMesActualCeldas = within(filaMesActual).getAllByRole('cell');
-    expect(filaMesActualCeldas[13]).not.toHaveClass('text-green-400');
+    expect(filaMesActualCeldas[12]).not.toHaveClass('text-green-400');
 
     const filaUltimoDisponiblePositivo = screen
       .getByText(mesUltimoDisponiblePositivo)
@@ -97,7 +97,7 @@ describe('EstimadoVsRealSection', () => {
     const filaUltimoDisponiblePositivoCeldas = within(filaUltimoDisponiblePositivo).getAllByRole(
       'cell'
     );
-    expect(filaUltimoDisponiblePositivoCeldas[13]).toHaveClass('text-green-400');
+    expect(filaUltimoDisponiblePositivoCeldas[12]).toHaveClass('text-green-400');
 
     const filaSinDatos = screen.getByText(mesSinDatos).closest('tr');
     const filaSinDatosCeldas = within(filaSinDatos).getAllByRole('cell');
@@ -149,7 +149,7 @@ describe('EstimadoVsRealSection', () => {
 
     expect(celdasTotales[1].textContent).toBe(formatCurrency(4000));
     expect(celdasTotales[2].textContent).toBe(formatCurrency(4500));
-    expect(celdasTotales[12].textContent).toBe(formatCurrency(610));
+    expect(celdasTotales[11].textContent).toBe(formatCurrency(650));
   });
 
   it('no resalta en verde cuando ningun disp_desp_cump_meta es positivo', () => {
@@ -195,7 +195,7 @@ describe('EstimadoVsRealSection', () => {
     const filas = screen.getAllByRole('row').slice(1, 3);
     filas.forEach((fila) => {
       const celdas = within(fila).getAllByRole('cell');
-      expect(celdas[13]).not.toHaveClass('text-green-400');
+      expect(celdas[12]).not.toHaveClass('text-green-400');
     });
   });
 });
