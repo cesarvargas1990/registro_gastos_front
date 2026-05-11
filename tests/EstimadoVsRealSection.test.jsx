@@ -149,6 +149,8 @@ describe('EstimadoVsRealSection', () => {
 
     expect(celdasTotales[1].textContent).toBe(formatCurrency(4000));
     expect(celdasTotales[2].textContent).toBe(formatCurrency(4500));
+    expect(celdasTotales[5].textContent).toBe(formatCurrency(0));
+    expect(celdasTotales[6].textContent).toBe(formatCurrency(0));
     expect(celdasTotales[11].textContent).toBe(formatCurrency(650));
   });
 

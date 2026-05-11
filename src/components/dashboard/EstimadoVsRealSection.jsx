@@ -3,6 +3,9 @@ import { FaTable } from 'react-icons/fa';
 import { formatCurrency } from '../../utils/format';
 
 export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) {
+  const mesActual = meses[new Date().getMonth()];
+  const filaMesActual = resumenRealVsEstimado.find((row) => row.mes === mesActual);
+
   return (
     <section>
       <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
@@ -29,7 +32,6 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
           </thead>
           <tbody>
             {(() => {
-              const mesActual = meses[new Date().getMonth()];
               const highlightKey = 'disp_desp_cump_meta';
               const lastPositiveIndex = resumenRealVsEstimado.reduce(
                 (acc, r, idx) => (Number(r[highlightKey] ?? 0) > 0 ? idx : acc),
@@ -109,14 +111,10 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
                 )}
               </td>
               <td className="px-4 py-2 border border-gray-700">
-                {formatCurrency(
-                  resumenRealVsEstimado.reduce((acc, r) => acc + Number(r.ahorro_real ?? 0), 0)
-                )}
+                {formatCurrency(filaMesActual?.ahorro_real ?? 0)}
               </td>
               <td className="px-4 py-2 border border-gray-700">
-                {formatCurrency(
-                  resumenRealVsEstimado.reduce((acc, r) => acc + Number(r.dif_ahorro ?? 0), 0)
-                )}
+                {formatCurrency(filaMesActual?.dif_ahorro ?? 0)}
               </td>
               <td className="px-4 py-2 border border-gray-700">
                 {formatCurrency(
