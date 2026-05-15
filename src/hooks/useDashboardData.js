@@ -14,6 +14,14 @@ const ordenarResumenCategorias = (data) => {
   return { datosOrdenados, columnasFinal };
 };
 
+const toFiniteNumber = (value, fallback = 0) => {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+};
+
+const hasFiniteNumber = (value) =>
+  value !== null && value !== undefined && Number.isFinite(Number(value));
+
 export default function useDashboardData() {
   const [resumenMensual, setResumenMensual] = useState([]);
   const [resumenGastos, setResumenGastos] = useState([]);
@@ -63,18 +71,31 @@ export default function useDashboardData() {
       const filaMesActual = resumenRealVsEstimado.find((r) => r.mes === mesActual);
       dispDespCumpMetaActual = filaMesActual ? filaMesActual.disp_desp_cump_meta : null;
     }
+    const resumenMesActual = resumenMensual.find((r) => r.Mes === mesActual);
+    const pendienteGastoFijoActual = toFiniteNumber(resumenMesActual?.Pendiente_gastoFijo);
+
     return indicadores.length
-      ? [
-          {
-            actual_menos_ahorro_real:
-              Number(indicadores[0].actual_en_cuenta_ahorros || 0) -
-              Number(indicadores[0].ahorro_real || 0),
-            ...indicadores[0],
-            disp_desp_cump_meta_actual: dispDespCumpMetaActual,
-          },
-        ]
+      ? (() => {
+          const actualMenosAhorroReal =
+            toFiniteNumber(indicadores[0].actual_en_cuenta_ahorros) -
+            toFiniteNumber(indicadores[0].ahorro_real);
+          const faltanteMetaActual = indicadores[0].faltante_meta_actual;
+          const saldoTrasMeta = hasFiniteNumber(faltanteMetaActual)
+            ? actualMenosAhorroReal -
+              toFiniteNumber(faltanteMetaActual) -
+              pendienteGastoFijoActual
+            : dispDespCumpMetaActual;
+
+          return [
+            {
+              actual_menos_ahorro_real: actualMenosAhorroReal,
+              ...indicadores[0],
+              disp_desp_cump_meta_actual: saldoTrasMeta,
+            },
+          ];
+        })()
       : [];
-  }, [indicadores, resumenRealVsEstimado]);
+  }, [indicadores, resumenMensual, resumenRealVsEstimado]);
 
   const handleGastoFijoToggle = useCallback(
     (item, mes) => {

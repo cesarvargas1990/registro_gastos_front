@@ -69,6 +69,32 @@ describe('useDashboardData coverage', () => {
     expect(result.current.indicadoresDerivados[0].actual_menos_ahorro_real).toBe(0);
   });
 
+  it('calcula saldo tras meta con disponible, faltante y gastos fijos pendientes', async () => {
+    const mesActual = resultMesActual();
+    setGetJsonImplementation({
+      '/resumen-mensual': () =>
+        Promise.resolve([{ Mes: mesActual, Pendiente_gastoFijo: 379900 }]),
+      '/dashboard-dinamico': () =>
+        Promise.resolve([
+          {
+            actual_en_cuenta_ahorros: 3717733.8,
+            ahorro_real: 3717733,
+            faltante_meta_actual: 5588079,
+          },
+        ]),
+      '/resumen_estimado_vs_real': () =>
+        Promise.resolve([{ mes: mesActual, disp_desp_cump_meta: 2582021.8 }]),
+    });
+
+    const { result } = renderHook(() => useDashboardData());
+
+    await waitFor(() => {
+      expect(result.current.indicadoresDerivados[0].disp_desp_cump_meta_actual).toBeCloseTo(
+        -5967978.2
+      );
+    });
+  });
+
   it('expone indicadoresDerivados vacio si dashboard-dinamico no trae datos', async () => {
     setGetJsonImplementation({
       '/dashboard-dinamico': () => Promise.resolve([]),
