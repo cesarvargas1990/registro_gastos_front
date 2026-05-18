@@ -5,16 +5,6 @@ import GastosFijosTable from './GastosFijosTable.jsx';
 import Dashboard from './Dashboard.jsx';
 import GastosForm from './GastosForm.jsx';
 import Login from './Login.jsx';
-import {
-  FaCalendarAlt,
-  FaHome,
-  FaListAlt,
-  FaMoon,
-  FaPiggyBank,
-  FaPowerOff,
-  FaReceipt,
-  FaWallet,
-} from 'react-icons/fa';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -29,98 +19,113 @@ function App() {
     setIsLoggedIn(false);
   };
   if (!isLoggedIn) return <Login onLogin={() => setIsLoggedIn(true)} />;
-
-  const navItems = [
-    { id: 'dashboard', label: 'Inicio', icon: FaHome },
-    { id: 'registrar', label: 'Movimientos', icon: FaReceipt },
-    { id: 'listado', label: 'Lista Movimientos', icon: FaListAlt },
-    { id: 'meses', label: 'Meses', icon: FaCalendarAlt },
-    { id: 'gastos-fijos', label: 'Gastos Fijos', icon: FaWallet },
-  ];
-
-  const renderNavButton = ({ id, label, icon: Icon }, onSelect) => {
-    const active = vista === id;
-    return (
-      <button
-        key={id}
-        onClick={() => onSelect(id)}
-        className={`flex items-center gap-3 rounded-xl px-4 py-3 text-left text-sm font-semibold transition ${
-          active
-            ? 'bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow-lg shadow-indigo-950/30'
-            : 'text-slate-200/90 hover:bg-white/10 hover:text-white'
-        }`}
-      >
-        <Icon className="text-base" />
-        {label}
-      </button>
-    );
-  };
-
   return (
-    <div className="min-h-screen bg-[#f6f8ff] text-slate-950">
-      <header className="fixed top-0 left-0 right-0 z-30 border-b border-slate-200 bg-white/90 px-4 py-3 shadow-sm backdrop-blur md:hidden">
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-30 bg-gray-800 px-4 py-3 shadow-md md:ml-64">
         <div className="flex items-center justify-between">
-          <button className="text-2xl text-slate-900" onClick={() => setSidebarOpen(true)}>
+          <button className="text-white text-2xl md:hidden" onClick={() => setSidebarOpen(true)}>
             ☰
           </button>
-          <h1 className="text-base font-bold">Finanzas</h1>
-          <button className="rounded-xl bg-[#13234a] p-3 text-white shadow-md" type="button">
-            <FaMoon />
-          </button>
+          <h1 className="text-xl font-bold">DASHBOARD</h1>
         </div>
       </header>
 
-      <aside className="fixed left-0 top-0 z-40 hidden h-full w-60 bg-[#162948] text-white shadow-2xl md:block">
-        <div className="flex h-full flex-col bg-[radial-gradient(circle_at_0_0,rgba(116,90,255,0.22),transparent_35%),linear-gradient(180deg,#172a4a_0%,#10213b_100%)] px-5 py-8">
-          <div className="mb-9 flex items-center gap-3">
-            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-cyan-300 to-indigo-500 shadow-lg shadow-cyan-950/30">
-              <FaPiggyBank className="text-sm" />
-            </span>
-            <h2 className="text-lg font-bold">Finanzas</h2>
-          </div>
-
-          <nav className="flex flex-col gap-3">
-            {navItems.map((item) => renderNavButton(item, setVista))}
+      {/* Sidebar fijo desktop */}
+      <div className="hidden md:block fixed top-0 left-0 h-full w-64 bg-gray-800 shadow-md z-40 pt-12">
+        <div className="px-4 pb-2">
+          <h2 className="text-lg font-bold text-white mb-4">💸 Finanzas</h2>
+          <nav className="flex flex-col gap-4 text-white">
+            <button onClick={() => setVista('dashboard')} className="text-left hover:text-teal-400">
+              Inicio
+            </button>
+            <button onClick={() => setVista('registrar')} className="text-left hover:text-teal-400">
+              Movimientos
+            </button>
+            <button onClick={() => setVista('listado')} className="text-left hover:text-teal-400">
+              Lista Movimientos
+            </button>
+            <button onClick={() => setVista('meses')} className="text-left hover:text-teal-400">
+              Meses
+            </button>
+            <button
+              onClick={() => setVista('gastos-fijos')}
+              className="text-left hover:text-teal-400"
+            >
+              Gastos Fijos
+            </button>
+            <button onClick={handleLogout} className="hover:text-teal-400 w-full text-left">
+              Salir
+            </button>
           </nav>
-
-          <button
-            onClick={handleLogout}
-            className="mt-auto flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-200/90 transition hover:bg-white/10 hover:text-white"
-          >
-            <FaPowerOff />
-            Salir
-          </button>
         </div>
-      </aside>
+      </div>
 
+      {/* Sidebar mobile */}
       <div
-        className={`fixed left-0 top-0 z-50 h-full w-72 transform bg-[#162948] text-white shadow-2xl transition-transform duration-300 md:hidden ${
+        className={`fixed top-0 left-0 h-full w-64 bg-gray-800 shadow-md z-50 transform transition-transform duration-300 md:hidden ${
           sidebarOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-          <h2 className="text-lg font-bold">Finanzas</h2>
-          <button className="text-lg text-white" onClick={() => setSidebarOpen(false)}>
+        <div className="flex justify-between items-center px-4 py-3 border-b border-gray-700">
+          <h2 className="text-lg font-bold">💸 Finanzas</h2>
+          <button className="text-white text-lg" onClick={() => setSidebarOpen(false)}>
             ✕
           </button>
         </div>
-        <nav className="flex flex-col gap-3 p-5">
-          {navItems.map((item) =>
-            renderNavButton(item, (id) => {
-              setVista(id);
-              setSidebarOpen(false);
-            })
-          )}
+        <nav className="flex flex-col gap-4 p-4">
           <button
-            onClick={handleLogout}
-            className="mt-4 flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-200/90 transition hover:bg-white/10 hover:text-white"
+            onClick={() => {
+              setVista('dashboard');
+              setSidebarOpen(false);
+            }}
+            className="text-left hover:text-teal-400"
           >
-            <FaPowerOff />
+            Inicio
+          </button>
+          <button
+            onClick={() => {
+              setVista('registrar');
+              setSidebarOpen(false);
+            }}
+            className="text-left hover:text-teal-400"
+          >
+            Registrar Gasto
+          </button>
+          <button
+            onClick={() => {
+              setVista('listado');
+              setSidebarOpen(false);
+            }}
+            className="text-left hover:text-teal-400"
+          >
+            Reportes
+          </button>
+          <button
+            onClick={() => {
+              setVista('meses');
+              setSidebarOpen(false);
+            }}
+            className="text-left hover:text-teal-400"
+          >
+            Meses
+          </button>
+          <button
+            onClick={() => {
+              setVista('gastos-fijos');
+              setSidebarOpen(false);
+            }}
+            className="text-left hover:text-teal-400"
+          >
+            Gastos Fijos
+          </button>
+          <button onClick={handleLogout} className="hover:text-teal-400 w-full text-left">
             Salir
           </button>
         </nav>
       </div>
 
+      {/* Contenido principal */}
       {vista === 'dashboard' && <Dashboard />}
 
       {vista === 'registrar' && <GastosForm />}

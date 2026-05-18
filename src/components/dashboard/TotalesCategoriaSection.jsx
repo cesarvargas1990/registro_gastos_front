@@ -4,30 +4,23 @@ import { formatCurrency } from '../../utils/format';
 
 export default function TotalesCategoriaSection({ totalesCategoria }) {
   return (
-    <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.07)]">
-      <h2 className="mb-4 flex items-center gap-3 text-base font-black text-[#071843]">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-500">
-          <FaTable />
-        </span>
-        Totales por Categoria
+    <section>
+      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+        <FaTable className="text-teal-400" /> Totales por Categoria
       </h2>
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-left text-sm text-[#172756]">
-          <thead className="bg-indigo-50/70 text-xs font-black text-[#27356d]">
-            <tr>
-              <th className="border border-indigo-100 px-3 py-2">Categoría</th>
-              <th className="border border-indigo-100 px-3 py-2">Total</th>
+      <div className="overflow-x-auto bg-gray-800 rounded shadow p-4">
+        <table className="min-w-full bg-gray-800 text-white rounded shadow">
+          <thead>
+            <tr className="bg-gray-700 text-left">
+              <th className="p-2">Categoría</th>
+              <th className="p-2">Total</th>
             </tr>
           </thead>
           <tbody>
             {totalesCategoria.map((item) => (
-              <tr key={item.categoria_id} className="odd:bg-white even:bg-slate-50/65">
-                <td className="border border-indigo-50 px-3 py-2 font-semibold">
-                  {item.categoria}
-                </td>
-                <td className="border border-indigo-50 px-3 py-2 font-bold">
-                  {formatCurrency(item.total_categoria)}
-                </td>
+              <tr key={item.categoria_id} className="border-t border-gray-600">
+                <td className="p-2">{item.categoria}</td>
+                <td className="p-2">{formatCurrency(item.total_categoria)}</td>
               </tr>
             ))}
           </tbody>

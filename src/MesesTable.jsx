@@ -3,10 +3,6 @@ import axios from 'axios';
 import { formatCurrency } from './utils/format';
 import { API_BASE } from './utils/api';
 
-const pageClass = 'min-h-screen px-4 pb-8 pt-20 text-slate-950 md:ml-60 md:px-8 md:pt-8';
-const numberInputClass =
-  'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-right text-sm font-bold text-slate-900 shadow-sm outline-none transition focus:border-teal-400 focus:ring-4 focus:ring-teal-100';
-
 const parseNumber = (value) => {
   if (value === null || value === undefined) return null;
   const cleaned = String(value).replace(/[^\d.-]/g, '');
@@ -108,107 +104,86 @@ export default function MesesTable() {
   };
 
   return (
-    <main className={pageClass}>
-      <header className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-teal-600">Planeación</p>
-          <h2 className="mt-1 text-3xl font-black tracking-normal text-[#061640]">
-            Meses del Año Actual
-          </h2>
-          <p className="mt-1 text-sm font-medium text-slate-400">
-            Ajusta metas, ingresos y estimados mensuales.
-          </p>
-        </div>
+    <main className="min-h-screen pt-20 md:ml-64 px-4">
+      <h2 className="text-2xl font-bold mb-6 text-center text-white">Meses del Año Actual</h2>
+
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-end mb-4">
+        {mensaje && <span className="text-green-400">{mensaje}</span>}
+        {error && <span className="text-red-400">{error}</span>}
         <button
           onClick={guardarCambios}
           disabled={!hayCambios || guardando}
-          className={`h-11 rounded-xl px-5 text-sm font-bold shadow-sm transition ${
+          className={`px-4 py-2 rounded font-semibold ${
             hayCambios && !guardando
-              ? 'bg-teal-500 text-white shadow-teal-100 hover:bg-teal-600'
-              : 'cursor-not-allowed bg-slate-200 text-slate-400'
+              ? 'bg-teal-500 hover:bg-teal-600 text-white'
+              : 'bg-gray-600 text-gray-300 cursor-not-allowed'
           }`}
         >
           {guardando ? 'Guardando...' : 'Guardar cambios'}
         </button>
-      </header>
-
-      <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-end">
-        {mensaje && (
-          <span className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-            {mensaje}
-          </span>
-        )}
-        {error && (
-          <span className="rounded-xl border border-red-100 bg-red-50 px-4 py-2 text-sm font-semibold text-red-700">
-            {error}
-          </span>
-        )}
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/70">
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto text-left text-sm">
-            <thead className="bg-slate-50 text-slate-600">
-              <tr>
+      <div className="overflow-x-auto bg-gray-800 p-4 rounded shadow">
+        <table className="min-w-full text-sm text-left table-auto border border-gray-700">
+          <thead className="bg-gray-900 text-white">
+            <tr className="bg-gray-700">
+              {columnas.map((col) => (
+                <th
+                  key={col.field}
+                  className={`px-4 py-2 border border-gray-600 ${
+                    col.align === 'right' ? 'text-right' : 'text-left'
+                  }`}
+                >
+                  {col.label}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {meses.map((mes, index) => (
+              <tr key={mes.id} className="border-b border-gray-700">
                 {columnas.map((col) => (
-                  <th
-                    key={col.field}
-                    className={`whitespace-nowrap border-b border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-wide ${
+                  <td
+                    key={`${mes.id}-${col.field}`}
+                    className={`p-2 border border-gray-700 ${
                       col.align === 'right' ? 'text-right' : 'text-left'
                     }`}
                   >
-                    {col.label}
-                  </th>
+                    {col.editable ? (
+                      <input
+                        type="number"
+                        className="w-full bg-gray-700 text-white px-2 py-1 rounded text-right"
+                        value={mes[col.field] ?? ''}
+                        onChange={(e) => actualizarCampo(index, col.field, e.target.value)}
+                      />
+                    ) : // Si el campo es numérico, mostrar con formato de moneda
+                    [
+                        'meta_ahorro',
+                        'ingreso_neto',
+                        'estimado_gastos_fijos',
+                        'ahorro_real',
+                        'dif_ingreso',
+                        'dif_ahorro',
+                        'gastos_fijos_est',
+                        'gastos_fijos_real',
+                      ].includes(col.field) ? (
+                      <span>{formatCurrency(mes[col.field])}</span>
+                    ) : (
+                      <span>{mes[col.field]}</span>
+                    )}
+                  </td>
                 ))}
               </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {meses.map((mes, index) => (
-                <tr key={mes.id} className="transition hover:bg-slate-50/80">
-                  {columnas.map((col) => (
-                    <td
-                      key={`${mes.id}-${col.field}`}
-                      className={`px-4 py-3 ${col.align === 'right' ? 'text-right' : 'text-left'}`}
-                    >
-                      {col.editable ? (
-                        <input
-                          type="number"
-                          className={numberInputClass}
-                          value={mes[col.field] ?? ''}
-                          onChange={(e) => actualizarCampo(index, col.field, e.target.value)}
-                        />
-                      ) : // Si el campo es numérico, mostrar con formato de moneda
-                      [
-                          'meta_ahorro',
-                          'ingreso_neto',
-                          'estimado_gastos_fijos',
-                          'ahorro_real',
-                          'dif_ingreso',
-                          'dif_ahorro',
-                          'gastos_fijos_est',
-                          'gastos_fijos_real',
-                        ].includes(col.field) ? (
-                        <span>{formatCurrency(mes[col.field])}</span>
-                      ) : (
-                        <span className="font-semibold text-slate-900">{mes[col.field]}</span>
-                      )}
-                    </td>
-                  ))}
-                </tr>
-              ))}
-              {meses.length === 0 && (
-                <tr>
-                  <td
-                    colSpan={columnas.length}
-                    className="px-4 py-10 text-center font-semibold text-slate-400"
-                  >
-                    Sin datos para el año actual.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+            ))}
+            {meses.length === 0 && (
+              <tr>
+                <td colSpan={columnas.length} className="p-4 text-center text-gray-300">
+                  Sin datos para el año actual.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </main>
   );

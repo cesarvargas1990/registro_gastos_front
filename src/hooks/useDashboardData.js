@@ -81,7 +81,9 @@ export default function useDashboardData() {
             toFiniteNumber(indicadores[0].ahorro_real);
           const faltanteMetaActual = indicadores[0].faltante_meta_actual;
           const saldoTrasMeta = hasFiniteNumber(faltanteMetaActual)
-            ? actualMenosAhorroReal - toFiniteNumber(faltanteMetaActual) - pendienteGastoFijoActual
+            ? actualMenosAhorroReal -
+              toFiniteNumber(faltanteMetaActual) -
+              pendienteGastoFijoActual
             : dispDespCumpMetaActual;
 
           return [

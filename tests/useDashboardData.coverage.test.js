@@ -72,7 +72,8 @@ describe('useDashboardData coverage', () => {
   it('calcula saldo tras meta con disponible, faltante y gastos fijos pendientes', async () => {
     const mesActual = resultMesActual();
     setGetJsonImplementation({
-      '/resumen-mensual': () => Promise.resolve([{ Mes: mesActual, Pendiente_gastoFijo: 379900 }]),
+      '/resumen-mensual': () =>
+        Promise.resolve([{ Mes: mesActual, Pendiente_gastoFijo: 379900 }]),
       '/dashboard-dinamico': () =>
         Promise.resolve([
           {

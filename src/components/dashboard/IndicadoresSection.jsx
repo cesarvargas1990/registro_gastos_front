@@ -2,71 +2,22 @@ import React from 'react';
 import { FaChartLine, FaTachometerAlt } from 'react-icons/fa';
 import { formatCurrency } from '../../utils/format';
 
-const indicatorOrder = [
-  'actual_menos_ahorro_real',
-  'actual_en_cuenta_ahorros',
-  'ahorro_real',
-  'faltante_meta_actual',
-  'faltante_meta_anio',
-  'gastos_fijos_estimados_anio',
-  'ingresos_estimados_anio',
-  'meta_ahorro_anio',
-  'meta_ahorro_hasta_mes_actual',
-  'disp_desp_cump_meta_actual',
-];
-
-const indicatorStyles = [
-  'from-emerald-50 to-cyan-50 text-emerald-500',
-  'from-cyan-50 to-sky-50 text-cyan-500',
-  'from-rose-50 to-pink-50 text-rose-500',
-  'from-orange-50 to-amber-50 text-orange-500',
-  'from-violet-50 to-purple-50 text-violet-500',
-  'from-blue-50 to-sky-50 text-blue-500',
-  'from-green-50 to-emerald-50 text-green-500',
-  'from-cyan-50 to-blue-50 text-cyan-500',
-  'from-purple-50 to-indigo-50 text-purple-500',
-  'from-slate-50 to-blue-50 text-indigo-500',
-];
-
 export default function IndicadoresSection({ indicadores, iconMap, labelMap }) {
-  const entries = Object.entries(indicadores[0] || {}).sort(([a], [b]) => {
-    const indexA = indicatorOrder.indexOf(a);
-    const indexB = indicatorOrder.indexOf(b);
-    if (indexA === -1 && indexB === -1) return 0;
-    if (indexA === -1) return 1;
-    if (indexB === -1) return -1;
-    return indexA - indexB;
-  });
-
   return (
-    <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.07)]">
-      <h2 className="mb-4 flex items-center gap-3 text-base font-black text-[#071843]">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-50 text-cyan-500">
-          <FaTachometerAlt />
-        </span>
-        Indicadores Financieros
+    <section>
+      <h2 className="text-2xl font-bold flex items-center gap-2 mb-4">
+        <FaTachometerAlt className="text-teal-400" /> Indicadores Financieros
       </h2>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
-        {entries.map(([key, value], index) => (
-          <div
-            key={key}
-            className="flex min-h-24 items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.06)]"
-          >
-            <span
-              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${
-                indicatorStyles[index % indicatorStyles.length]
-              }`}
-            >
-              {iconMap[key] || <FaChartLine />}
-            </span>
-            <div className="min-w-0">
-              <p className="line-clamp-2 text-[11px] font-bold leading-snug text-slate-500">
-                {labelMap[key] || key}
-              </p>
-              <p className="mt-1 break-words text-base font-black leading-tight text-[#12b8a6]">
-                {formatCurrency(value, { minimumFractionDigits: 0 })}
-              </p>
-            </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {Object.entries(indicadores[0] || {}).map(([key, value]) => (
+          <div key={key} className="bg-gray-800 p-4 rounded shadow">
+            <p className="text-sm text-gray-400 flex items-center gap-2">
+              {iconMap[key] || <FaChartLine className="text-teal-400" />}
+              {labelMap[key] || key}
+            </p>
+            <p className="text-base font-semibold text-teal-300 break-words">
+              {formatCurrency(value, { minimumFractionDigits: 0 })}
+            </p>
           </div>
         ))}
       </div>
