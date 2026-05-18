@@ -5,6 +5,10 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import GastosForm from './GastosForm';
 import { API_BASE } from './utils/api';
 
+const pageClass = 'min-h-screen px-4 pb-8 pt-20 text-slate-950 md:ml-60 md:px-8 md:pt-8';
+const inputClass =
+  'h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-teal-400 focus:ring-4 focus:ring-teal-100';
+
 export default function TablaReportes() {
   const [movimientos, setMovimientos] = useState([]);
   const [searchDesc, setSearchDesc] = useState('');
@@ -107,14 +111,22 @@ export default function TablaReportes() {
   };
 
   return (
-    <main className="min-h-screen pt-20 md:ml-64 px-4">
-      <h2 className="text-2xl font-bold mb-6 text-center text-white">Reporte de Movimientos</h2>
+    <main className={pageClass}>
+      <header className="mb-6 flex flex-col gap-2">
+        <p className="text-xs font-bold uppercase tracking-wide text-teal-600">Movimientos</p>
+        <h2 className="text-3xl font-black tracking-normal text-[#061640]">
+          Reporte de Movimientos
+        </h2>
+        <p className="text-sm font-medium text-slate-400">
+          Filtra, ordena y administra tus registros.
+        </p>
+      </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 gap-4 mb-4">
+      <div className="mb-5 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/70 md:grid-cols-3">
         <input
           type="text"
           placeholder="Filtrar por descripción..."
-          className="px-4 py-2 rounded bg-gray-700 text-white w-full"
+          className={`${inputClass} w-full`}
           value={searchDesc}
           onChange={(e) => setSearchDesc(e.target.value.toLowerCase())}
         />
@@ -122,7 +134,7 @@ export default function TablaReportes() {
         <FiltroCategorias className="w-full" onChange={(val) => setSearchCat(val)} />
 
         <select
-          className="px-4 py-2 rounded bg-gray-700 text-white w-full"
+          className={`${inputClass} w-full`}
           value={itemsPerPage}
           onChange={(e) => {
             setItemsPerPage(Number(e.target.value));
@@ -140,92 +152,105 @@ export default function TablaReportes() {
           type="date"
           value={fechaInicio}
           onChange={(e) => setFechaInicio(e.target.value)}
-          className="px-4 py-2 rounded bg-gray-700 text-white w-full"
+          className={`${inputClass} w-full`}
         />
 
         <input
           type="date"
           value={fechaFin}
           onChange={(e) => setFechaFin(e.target.value)}
-          className="px-4 py-2 rounded bg-gray-700 text-white w-full"
+          className={`${inputClass} w-full`}
         />
 
         <button
           onClick={limpiarFiltros}
-          className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full"
+          className="h-12 w-full rounded-xl bg-red-500 px-4 text-sm font-bold text-white shadow-lg shadow-red-100 transition hover:bg-red-600"
         >
           Limpiar filtros
         </button>
       </div>
 
-      <div className="overflow-x-auto bg-gray-800 p-4 rounded shadow">
-        <table className="min-w-full text-sm text-left table-auto border border-gray-700">
-          <thead className="bg-gray-900 text-white">
-            <tr className="bg-gray-700">
-              {columns.map((col) => (
-                <th
-                  key={col.field}
-                  onClick={() => handleSort(col.field)}
-                  className="px-4 py-2 border border-gray-600 cursor-pointer"
-                >
-                  {col.label} {sortField === col.field ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/70">
+        <div className="overflow-x-auto">
+          <table className="min-w-full table-auto text-left text-sm">
+            <thead className="bg-slate-50 text-slate-600">
+              <tr>
+                {columns.map((col) => (
+                  <th
+                    key={col.field}
+                    onClick={() => handleSort(col.field)}
+                    className="cursor-pointer whitespace-nowrap border-b border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-wide"
+                  >
+                    {col.label}{' '}
+                    {sortField === col.field ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
+                  </th>
+                ))}
+                <th className="border-b border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-wide">
+                  Acciones
                 </th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700">
+              {paginatedData.map((mov) => (
+                <tr key={mov.id} className="transition hover:bg-slate-50/80">
+                  <td className="whitespace-nowrap px-4 py-3 font-semibold text-slate-500">
+                    {mov.id}
+                  </td>
+                  <td className="min-w-60 px-4 py-3 font-semibold text-slate-900">
+                    {mov.descripcion}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-3 text-right font-bold text-[#061640]">{`$${parseFloat(mov.valor).toLocaleString('es-CO')}`}</td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    {mov.fecha ? new Date(mov.fecha).toLocaleDateString('es-ES') : ''}
+                  </td>
+                  <td className="min-w-48 px-4 py-3">{mov.nombre_categoria}</td>
+                  <td className="whitespace-nowrap px-4 py-3">
+                    {mov.fecha_final_pago
+                      ? new Date(mov.fecha_final_pago).toLocaleDateString('es-ES')
+                      : ''}
+                  </td>
+                  <td className="flex gap-2 px-4 py-3">
+                    <button
+                      onClick={() => setMovAEditar(mov)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition hover:bg-blue-100"
+                      title="Editar"
+                    >
+                      <FaEdit />
+                    </button>
+                    <button
+                      onClick={() => confirmarEliminar(mov)}
+                      className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-50 text-red-600 transition hover:bg-red-100"
+                      title="Eliminar"
+                    >
+                      <FaTrash />
+                    </button>
+                  </td>
+                </tr>
               ))}
-              <th className="px-4 py-2 border border-gray-600">⚙️</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedData.map((mov) => (
-              <tr key={mov.id} className="border-b border-gray-700">
-                <td className="p-2">{mov.id}</td>
-                <td className="p-2">{mov.descripcion}</td>
-                <td className="p-2 text-right">{`$${parseFloat(mov.valor).toLocaleString('es-CO')}`}</td>
-                <td className="p-2">
-                  {mov.fecha ? new Date(mov.fecha).toLocaleDateString('es-ES') : ''}
-                </td>
-                <td className="p-2">{mov.nombre_categoria}</td>
-                <td className="p-2">
-                  {mov.fecha_final_pago
-                    ? new Date(mov.fecha_final_pago).toLocaleDateString('es-ES')
-                    : ''}
-                </td>
-                <td className="p-2 flex gap-2">
-                  <button
-                    onClick={() => setMovAEditar(mov)}
-                    className="text-blue-400 hover:text-blue-600"
-                    title="Editar"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => confirmarEliminar(mov)}
-                    className="text-red-400 hover:text-red-600"
-                    title="Eliminar"
-                  >
-                    <FaTrash />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {total !== null && (
-              <tr className="bg-gray-700 text-white font-bold">
-                <td className="p-2" colSpan={2}>
-                  Total
-                </td>
-                <td className="p-2 text-right">{`$${total.toLocaleString('es-CO')}`}</td>
-                <td className="p-2" colSpan={4}></td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              {total !== null && (
+                <tr className="bg-[#061640] font-bold text-white">
+                  <td className="px-4 py-3" colSpan={2}>
+                    Total
+                  </td>
+                  <td className="px-4 py-3 text-right">{`$${total.toLocaleString('es-CO')}`}</td>
+                  <td className="px-4 py-3" colSpan={4}></td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      <div className="mt-4 flex justify-center gap-2 flex-wrap">
+      <div className="mt-5 flex flex-wrap justify-center gap-2">
         {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }, (_, i) => (
           <button
             key={i}
             onClick={() => setCurrentPage(i + 1)}
-            className={`px-3 py-1 rounded ${currentPage === i + 1 ? 'bg-teal-500' : 'bg-gray-700'} text-white`}
+            className={`h-10 min-w-10 rounded-xl px-3 text-sm font-bold shadow-sm transition ${
+              currentPage === i + 1
+                ? 'bg-teal-500 text-white shadow-teal-100'
+                : 'border border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+            }`}
           >
             {i + 1}
           </button>
@@ -233,24 +258,24 @@ export default function TablaReportes() {
       </div>
 
       {mostrarModal && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-60 flex items-center justify-center">
-          <div className="bg-gray-900 rounded-lg p-6 w-80 text-white shadow-lg">
-            <h3 className="text-lg font-bold mb-4">¿Eliminar este gasto?</h3>
-            <p className="mb-4 text-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#061640]/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-sm rounded-2xl border border-slate-200 bg-white p-6 text-slate-900 shadow-2xl">
+            <h3 className="mb-4 text-xl font-black text-[#061640]">¿Eliminar este gasto?</h3>
+            <p className="mb-5 text-sm font-medium text-slate-500">
               <strong>Descripción:</strong> {movAEliminar.descripcion}
               <br />
               <strong>Valor:</strong> ${parseFloat(movAEliminar.valor).toLocaleString('es-CO')}
             </p>
-            <div className="flex justify-end gap-2">
+            <div className="flex justify-end gap-3">
               <button
                 onClick={() => setMostrarModal(false)}
-                className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-500"
+                className="h-11 rounded-xl border border-slate-200 bg-white px-5 text-sm font-bold text-slate-600 transition hover:bg-slate-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={eliminarConfirmado}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                className="h-11 rounded-xl bg-red-500 px-5 text-sm font-bold text-white shadow-lg shadow-red-100 transition hover:bg-red-600"
               >
                 Eliminar
               </button>
@@ -261,8 +286,8 @@ export default function TablaReportes() {
 
       {/* Modal Editar */}
       {movAEditar && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-70 flex items-center justify-center overflow-y-auto p-4">
-          <div className="bg-gray-900 rounded-lg w-full max-w-2xl shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#061640]/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-2xl">
             <GastosForm
               gastoInicial={movAEditar}
               onClose={() => setMovAEditar(null)}

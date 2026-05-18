@@ -18,16 +18,19 @@ export default function ResumenCategoriasSection({ columnas, datos }) {
   ];
   const mesActual = meses[new Date().getMonth()];
   return (
-    <section>
-      <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-        <FaTable className="text-teal-400" /> Resumen mensual por categoría
+    <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.07)]">
+      <h2 className="mb-4 flex items-center gap-3 text-base font-black text-[#071843]">
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-500">
+          <FaTable />
+        </span>
+        Resumen mensual por categoría
       </h2>
-      <div className="overflow-x-auto bg-gray-800 rounded shadow p-4">
-        <table className="min-w-full text-sm text-left border border-gray-700">
-          <thead className="bg-gray-900 text-white">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-left text-xs text-[#172756]">
+          <thead className="bg-indigo-50/70 text-[11px] font-black text-[#27356d]">
             <tr>
               {columnas.map((col) => (
-                <th key={col} className="px-4 py-2 border border-gray-600 capitalize">
+                <th key={col} className="border border-indigo-100 px-3 py-2 capitalize">
                   {col.replace('_', ' ')}
                 </th>
               ))}
@@ -35,11 +38,14 @@ export default function ResumenCategoriasSection({ columnas, datos }) {
           </thead>
           <tbody>
             {datos.map((fila, i) => {
-              const rowClass = fila.Mes === mesActual ? 'bg-gray-700/60' : '';
+              const rowClass =
+                fila.Mes === mesActual
+                  ? 'bg-gray-700/60 bg-indigo-50/80'
+                  : 'odd:bg-white even:bg-slate-50/65';
               return (
                 <tr key={i} className={rowClass}>
                   {columnas.map((col) => (
-                    <td key={col} className="px-4 py-2 border border-gray-700">
+                    <td key={col} className="whitespace-nowrap border border-indigo-50 px-3 py-2">
                       {!isNaN(Number(fila[col]))
                         ? `$ ${Number(fila[col]).toLocaleString('es-CO', {
                             minimumFractionDigits: 2,
@@ -52,7 +58,7 @@ export default function ResumenCategoriasSection({ columnas, datos }) {
               );
             })}
           </tbody>
-          <tfoot className="bg-gray-900 text-white font-semibold">
+          <tfoot className="bg-indigo-50/80 font-black text-[#172756]">
             <tr>
               {columnas.map((col, index) => {
                 const esNumerico = datos.every((fila) => !isNaN(Number(fila[col])));
@@ -61,7 +67,7 @@ export default function ResumenCategoriasSection({ columnas, datos }) {
                   : '';
 
                 return (
-                  <td key={col} className="px-4 py-2 border border-gray-700">
+                  <td key={col} className="whitespace-nowrap border border-indigo-100 px-3 py-2">
                     {index === 0
                       ? 'Total'
                       : esNumerico
