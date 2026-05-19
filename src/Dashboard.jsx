@@ -45,11 +45,16 @@ export default function Dashboard() {
   } = useDashboardData();
 
   return (
-    <main className="pt-20 md:ml-64 p-6 min-h-screen text-white space-y-10">
-      {/* Gráficos */}
+    <main className="min-h-screen space-y-5 px-4 pb-8 pt-20 text-slate-950 md:ml-60 md:px-8 md:pt-8">
+      <header>
+        <div>
+          <h1 className="text-3xl font-black tracking-normal text-[#061640]">Dashboard</h1>
+          <p className="mt-1 text-sm font-medium text-slate-400">Resumen general de tus finanzas</p>
+        </div>
+      </header>
+
       <ChartsSection resumenMensual={resumenMensual} resumenGastos={resumenGastos} />
 
-      {/* Tabla Resumen Gastos */}
       <GastosFijosSection
         resumenTabla={resumenTabla}
         resumenMensual={resumenMensual}
@@ -57,7 +62,6 @@ export default function Dashboard() {
         onToggleGastoFijo={handleGastoFijoToggle}
       />
 
-      {/* Indicadores al final */}
       <IndicadoresSection
         indicadores={indicadoresDerivados}
         iconMap={iconMap}

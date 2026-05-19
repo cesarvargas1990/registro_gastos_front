@@ -13,7 +13,7 @@ function FiltroCategorias({ value, onChange, className = '' }) {
   return (
     <select
       value={value}
-      className={`px-4 py-2 rounded bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-400 ${className}`}
+      className={`h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-teal-400 focus:ring-4 focus:ring-teal-100 ${className}`}
       onChange={(e) => onChange(e.target.value)}
     >
       <option value="">Selecciona una categoría</option>
