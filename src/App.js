@@ -9,7 +9,6 @@ import {
   FaCalendarAlt,
   FaHome,
   FaListAlt,
-  FaMoon,
   FaPiggyBank,
   FaPowerOff,
   FaReceipt,
@@ -59,14 +58,15 @@ function App() {
   return (
     <div className="min-h-screen bg-[#f6f8ff] text-slate-950">
       <header className="fixed top-0 left-0 right-0 z-30 border-b border-slate-200 bg-white/90 px-4 py-3 shadow-sm backdrop-blur md:hidden">
-        <div className="flex items-center justify-between">
-          <button className="text-2xl text-slate-900" onClick={() => setSidebarOpen(true)}>
+        <div className="grid grid-cols-[2.5rem_1fr_2.5rem] items-center">
+          <button
+            className="text-left text-2xl text-slate-900"
+            onClick={() => setSidebarOpen(true)}
+          >
             ☰
           </button>
-          <h1 className="text-base font-bold">Finanzas</h1>
-          <button className="rounded-xl bg-[#13234a] p-3 text-white shadow-md" type="button">
-            <FaMoon />
-          </button>
+          <h1 className="text-center text-base font-bold">Finanzas</h1>
+          <span aria-hidden="true" />
         </div>
       </header>
 

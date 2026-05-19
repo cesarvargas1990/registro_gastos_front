@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaDownload, FaExpandAlt, FaTable } from 'react-icons/fa';
+import { FaTable } from 'react-icons/fa';
 import { formatCurrency } from '../../utils/format';
 
 export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) {
@@ -22,20 +22,6 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
           </span>
           Estimado vs Real
         </h2>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-[#172756]"
-          >
-            <FaDownload />
-          </button>
-          <button
-            type="button"
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-slate-200 text-[#172756]"
-          >
-            <FaExpandAlt />
-          </button>
-        </div>
       </div>
       <div className="overflow-x-auto">
         <table className="min-w-full text-left text-xs text-[#172756]">
