@@ -46,24 +46,24 @@ export default function IndicadoresSection({ indicadores, iconMap, labelMap }) {
         </span>
         Indicadores Financieros
       </h2>
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         {entries.map(([key, value], index) => (
           <div
             key={key}
-            className="flex min-h-24 items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_28px_rgba(15,23,42,0.06)]"
+            className="flex min-h-32 flex-col justify-between gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_10px_28px_rgba(15,23,42,0.06)] sm:min-h-24 sm:flex-row sm:items-center sm:justify-start sm:p-4"
           >
             <span
-              className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br text-sm sm:h-14 sm:w-14 sm:text-base ${
                 indicatorStyles[index % indicatorStyles.length]
               }`}
             >
               {iconMap[key] || <FaChartLine />}
             </span>
             <div className="min-w-0">
-              <p className="line-clamp-2 text-[11px] font-bold leading-snug text-slate-500">
+              <p className="line-clamp-2 text-[10px] font-bold leading-snug text-slate-500 sm:text-[11px]">
                 {labelMap[key] || key}
               </p>
-              <p className="mt-1 break-words text-base font-black leading-tight text-[#12b8a6]">
+              <p className="mt-1 break-words text-[13px] font-black leading-tight text-[#12b8a6] sm:text-base">
                 {formatCurrency(value, { minimumFractionDigits: 0 })}
               </p>
             </div>
