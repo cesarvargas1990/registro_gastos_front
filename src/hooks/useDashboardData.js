@@ -79,12 +79,16 @@ export default function useDashboardData() {
           const actualMenosAhorroReal =
             toFiniteNumber(indicadores[0].actual_en_cuenta_ahorros) -
             toFiniteNumber(indicadores[0].ahorro_real);
+          const faltanteMetaActual = indicadores[0].faltante_meta_actual;
+          const saldoTrasMeta = hasFiniteNumber(faltanteMetaActual)
+            ? actualMenosAhorroReal - toFiniteNumber(faltanteMetaActual) - pendienteGastoFijoActual
+            : dispDespCumpMetaActual;
 
           return [
             {
               actual_menos_ahorro_real: actualMenosAhorroReal,
               ...indicadores[0],
-              disp_desp_cump_meta_actual: dispDespCumpMetaActual,
+              disp_desp_cump_meta_actual: saldoTrasMeta,
             },
           ];
         })()
