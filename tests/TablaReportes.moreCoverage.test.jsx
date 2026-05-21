@@ -174,4 +174,55 @@ describe('TablaReportes more coverage', () => {
     expect(filas[1]).toHaveTextContent('Ingreso A');
     expect(filas[2]).toHaveTextContent('Gasto B');
   });
+
+  it('ordena valor numericamente aunque llegue como texto', async () => {
+    axios.get.mockResolvedValueOnce({
+      data: [
+        {
+          id: 1,
+          descripcion: 'Pagos varios',
+          valor: '112000.00',
+          fecha: '2026-05-16',
+          nombre_categoria: 'Gasto',
+          categoria_id: 2,
+          fecha_final_pago: null,
+        },
+        {
+          id: 2,
+          descripcion: 'pago carro',
+          valor: '12144.00',
+          fecha: '2026-05-08',
+          nombre_categoria: 'Gasto',
+          categoria_id: 2,
+          fecha_final_pago: null,
+        },
+        {
+          id: 3,
+          descripcion: 'Pagos',
+          valor: '141010.00',
+          fecha: '2026-05-18',
+          nombre_categoria: 'Gasto',
+          categoria_id: 2,
+          fecha_final_pago: null,
+        },
+      ],
+    });
+
+    render(<TablaReportes />);
+
+    expect(await screen.findByText('Pagos varios')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('Valor'));
+
+    let filas = screen.getAllByRole('row');
+    expect(filas[1]).toHaveTextContent('pago carro');
+    expect(filas[2]).toHaveTextContent('Pagos varios');
+    expect(filas[3]).toHaveTextContent('Pagos');
+
+    fireEvent.click(screen.getByText(/Valor ↑/));
+
+    filas = screen.getAllByRole('row');
+    expect(filas[1]).toHaveTextContent('Pagos');
+    expect(filas[2]).toHaveTextContent('Pagos varios');
+    expect(filas[3]).toHaveTextContent('pago carro');
+  });
 });

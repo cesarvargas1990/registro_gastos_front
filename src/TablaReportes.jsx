@@ -9,6 +9,32 @@ const pageClass = 'min-h-screen px-4 pb-8 pt-20 text-slate-950 md:ml-60 md:px-8 
 const inputClass =
   'h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-teal-400 focus:ring-4 focus:ring-teal-100';
 
+const numericFields = new Set(['id', 'valor']);
+const dateFields = new Set(['fecha', 'fecha_final_pago']);
+
+const parseSortNumber = (value) => {
+  if (value === null || value === undefined || value === '') return 0;
+  if (typeof value === 'number') return value;
+
+  const normalizedValue = String(value).replace(/[^\d.-]/g, '');
+  const number = Number(normalizedValue);
+  return Number.isFinite(number) ? number : 0;
+};
+
+const getSortValue = (item, field) => {
+  const value = item[field];
+
+  if (numericFields.has(field)) {
+    return parseSortNumber(value);
+  }
+
+  if (dateFields.has(field)) {
+    return new Date(value || 0).getTime();
+  }
+
+  return String(value ?? '').toLocaleLowerCase('es-CO');
+};
+
 export default function TablaReportes() {
   const [movimientos, setMovimientos] = useState([]);
   const [searchDesc, setSearchDesc] = useState('');
@@ -70,14 +96,16 @@ export default function TablaReportes() {
     });
 
     return filtered.sort((a, b) => {
-      const aVal = a[sortField];
-      const bVal = b[sortField];
-      const isDateField = ['fecha', 'fecha_final_pago'].includes(sortField);
-      const aValue = isDateField ? new Date(aVal || 0) : (aVal ?? '');
-      const bValue = isDateField ? new Date(bVal || 0) : (bVal ?? '');
+      const aValue = getSortValue(a, sortField);
+      const bValue = getSortValue(b, sortField);
+      const direction = sortDirection === 'asc' ? 1 : -1;
 
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return aValue.localeCompare(bValue, 'es-CO', { numeric: true }) * direction;
+      }
+
+      if (aValue < bValue) return -1 * direction;
+      if (aValue > bValue) return 1 * direction;
       return 0;
     });
   }, [movimientos, searchDesc, searchCat, sortField, sortDirection, fechaInicio, fechaFin]);
