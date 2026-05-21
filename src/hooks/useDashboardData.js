@@ -62,58 +62,38 @@ export default function useDashboardData() {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  const saldoTrasMetaActual = useMemo(() => {
+  const indicadoresDerivados = useMemo(() => {
+    // Buscar el mes actual
     const mesActual = MESES[new Date().getMonth()];
-    const filaMesActual = resumenRealVsEstimado.find((r) => r.mes === mesActual);
-    const dispDespCumpMetaActual = filaMesActual ? filaMesActual.disp_desp_cump_meta : null;
-
-    if (!indicadores.length) return dispDespCumpMetaActual;
-
+    // Buscar el dato de Disp Desp Cump Meta del mes actual en resumenRealVsEstimado
+    let dispDespCumpMetaActual = null;
+    if (resumenRealVsEstimado && resumenRealVsEstimado.length) {
+      const filaMesActual = resumenRealVsEstimado.find((r) => r.mes === mesActual);
+      dispDespCumpMetaActual = filaMesActual ? filaMesActual.disp_desp_cump_meta : null;
+    }
     const resumenMesActual = resumenMensual.find((r) => r.Mes === mesActual);
     const pendienteGastoFijoActual = toFiniteNumber(resumenMesActual?.Pendiente_gastoFijo);
-    const actualMenosAhorroReal =
-      toFiniteNumber(indicadores[0].actual_en_cuenta_ahorros) -
-      toFiniteNumber(indicadores[0].ahorro_real);
-    const actualEnCuentaAhorros = indicadores[0].actual_en_cuenta_ahorros;
-    const faltanteMetaActual = indicadores[0].faltante_meta_actual;
 
-    if (hasFiniteNumber(dispDespCumpMetaActual) && hasFiniteNumber(actualEnCuentaAhorros)) {
-      return toFiniteNumber(dispDespCumpMetaActual) - toFiniteNumber(actualEnCuentaAhorros);
-    }
-
-    if (hasFiniteNumber(faltanteMetaActual)) {
-      return actualMenosAhorroReal - toFiniteNumber(faltanteMetaActual) - pendienteGastoFijoActual;
-    }
-
-    return dispDespCumpMetaActual;
-  }, [indicadores, resumenMensual, resumenRealVsEstimado]);
-
-  const resumenRealVsEstimadoAjustado = useMemo(() => {
-    if (!hasFiniteNumber(saldoTrasMetaActual)) return resumenRealVsEstimado;
-
-    const mesActual = MESES[new Date().getMonth()];
-    return resumenRealVsEstimado.map((row) =>
-      row.mes === mesActual ? { ...row, disp_desp_cump_meta: saldoTrasMetaActual } : row
-    );
-  }, [resumenRealVsEstimado, saldoTrasMetaActual]);
-
-  const indicadoresDerivados = useMemo(() => {
     return indicadores.length
       ? (() => {
           const actualMenosAhorroReal =
             toFiniteNumber(indicadores[0].actual_en_cuenta_ahorros) -
             toFiniteNumber(indicadores[0].ahorro_real);
+          const faltanteMetaActual = indicadores[0].faltante_meta_actual;
+          const saldoTrasMeta = hasFiniteNumber(faltanteMetaActual)
+            ? actualMenosAhorroReal - toFiniteNumber(faltanteMetaActual) - pendienteGastoFijoActual
+            : dispDespCumpMetaActual;
 
           return [
             {
               actual_menos_ahorro_real: actualMenosAhorroReal,
               ...indicadores[0],
-              disp_desp_cump_meta_actual: saldoTrasMetaActual,
+              disp_desp_cump_meta_actual: saldoTrasMeta,
             },
           ];
         })()
       : [];
-  }, [indicadores, saldoTrasMetaActual]);
+  }, [indicadores, resumenMensual, resumenRealVsEstimado]);
 
   const handleGastoFijoToggle = useCallback(
     (item, mes) => {
@@ -146,7 +126,7 @@ export default function useDashboardData() {
     resumenGastos,
     resumenTabla,
     indicadoresDerivados,
-    resumenRealVsEstimado: resumenRealVsEstimadoAjustado,
+    resumenRealVsEstimado,
     totalesCategoria,
     datos,
     columnas,
