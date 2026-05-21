@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaTable } from 'react-icons/fa';
+import { calcularDisponibleGastos } from '../../utils/estimadoVsReal';
 import { formatCurrency } from '../../utils/format';
 
 export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) {
@@ -7,12 +8,6 @@ export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) 
   const filaMesActual = resumenRealVsEstimado.find((row) => row.mes === mesActual);
   const renderSoloMesActual = (rowMes, value) =>
     rowMes === mesActual ? formatCurrency(value) : '-';
-  const calcularDisponibleGastos = (row) =>
-    Number(row.ingreso_real ?? 0) -
-    Number(row.meta_ahorro_est ?? 0) -
-    Number(row.gastos_fijos_est ?? 0) -
-    Number(row.gastos_adicionales ?? 0);
-
   return (
     <section className="rounded-3xl border border-slate-200/80 bg-white p-5 shadow-[0_18px_45px_rgba(15,23,42,0.07)]">
       <div className="mb-4 flex items-center justify-between">

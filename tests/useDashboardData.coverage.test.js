@@ -69,29 +69,39 @@ describe('useDashboardData coverage', () => {
     expect(result.current.indicadoresDerivados[0].actual_menos_ahorro_real).toBe(0);
   });
 
-  it('calcula saldo tras meta con disponible, faltante y gastos fijos pendientes', async () => {
+  it('calcula saldo tras meta como acumulado de disponible gastos hasta el mes actual', async () => {
     const mesActual = resultMesActual();
+    const mesesPrevios = ['Enero', 'Febrero', 'Marzo', 'Abril'].filter((mes) => mes !== mesActual);
     setGetJsonImplementation({
       '/resumen-mensual': () => Promise.resolve([{ Mes: mesActual, Pendiente_gastoFijo: 379900 }]),
       '/dashboard-dinamico': () =>
         Promise.resolve([
           {
-            actual_en_cuenta_ahorros: 3717733.8,
-            ahorro_real: 3717733,
-            faltante_meta_actual: 5588079,
+            actual_en_cuenta_ahorros: 8600000,
+            ahorro_real: 3050354,
+            faltante_meta_actual: 6255458,
           },
         ]),
       '/resumen_estimado_vs_real': () =>
-        Promise.resolve([{ mes: mesActual, disp_desp_cump_meta: 2582021.8 }]),
+        Promise.resolve([
+          ...mesesPrevios.map((mes, index) => ({
+            mes,
+            disponible_gastos: [-1110100, 205527, -3625339.2, -1835119][index],
+          })),
+          { mes: mesActual, disponible_gastos: -159336 },
+        ]),
     });
 
     const { result } = renderHook(() => useDashboardData());
 
     await waitFor(() => {
       expect(result.current.indicadoresDerivados[0].disp_desp_cump_meta_actual).toBeCloseTo(
-        -5967978.2
+        -6524367.2
       );
     });
+    expect(
+      result.current.resumenRealVsEstimado.find((row) => row.mes === mesActual).disp_desp_cump_meta
+    ).toBeCloseTo(-6524367.2);
   });
 
   it('expone indicadoresDerivados vacio si dashboard-dinamico no trae datos', async () => {

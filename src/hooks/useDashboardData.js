@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getJson, postJson } from '../utils/api.js';
+import { aplicarSaldoAcumuladoTrasMeta, hasFiniteNumber } from '../utils/estimadoVsReal.js';
 import { MESES } from '../utils/meses.js';
 
 const ordenarResumenCategorias = (data) => {
@@ -18,9 +19,6 @@ const toFiniteNumber = (value, fallback = 0) => {
   const number = Number(value);
   return Number.isFinite(number) ? number : fallback;
 };
-
-const hasFiniteNumber = (value) =>
-  value !== null && value !== undefined && Number.isFinite(Number(value));
 
 export default function useDashboardData() {
   const [resumenMensual, setResumenMensual] = useState([]);
@@ -62,38 +60,35 @@ export default function useDashboardData() {
     fetchDashboardData();
   }, [fetchDashboardData]);
 
-  const indicadoresDerivados = useMemo(() => {
-    // Buscar el mes actual
-    const mesActual = MESES[new Date().getMonth()];
-    // Buscar el dato de Disp Desp Cump Meta del mes actual en resumenRealVsEstimado
-    let dispDespCumpMetaActual = null;
-    if (resumenRealVsEstimado && resumenRealVsEstimado.length) {
-      const filaMesActual = resumenRealVsEstimado.find((r) => r.mes === mesActual);
-      dispDespCumpMetaActual = filaMesActual ? filaMesActual.disp_desp_cump_meta : null;
-    }
-    const resumenMesActual = resumenMensual.find((r) => r.Mes === mesActual);
-    const pendienteGastoFijoActual = toFiniteNumber(resumenMesActual?.Pendiente_gastoFijo);
+  const resumenRealVsEstimadoAjustado = useMemo(() => {
+    return aplicarSaldoAcumuladoTrasMeta(resumenRealVsEstimado);
+  }, [resumenRealVsEstimado]);
 
+  const saldoTrasMetaActual = useMemo(() => {
+    const mesActual = MESES[new Date().getMonth()];
+    const filaMesActual = resumenRealVsEstimadoAjustado.find((r) => r.mes === mesActual);
+    return filaMesActual && hasFiniteNumber(filaMesActual.disp_desp_cump_meta)
+      ? filaMesActual.disp_desp_cump_meta
+      : null;
+  }, [resumenRealVsEstimadoAjustado]);
+
+  const indicadoresDerivados = useMemo(() => {
     return indicadores.length
       ? (() => {
           const actualMenosAhorroReal =
             toFiniteNumber(indicadores[0].actual_en_cuenta_ahorros) -
             toFiniteNumber(indicadores[0].ahorro_real);
-          const faltanteMetaActual = indicadores[0].faltante_meta_actual;
-          const saldoTrasMeta = hasFiniteNumber(faltanteMetaActual)
-            ? actualMenosAhorroReal - toFiniteNumber(faltanteMetaActual) - pendienteGastoFijoActual
-            : dispDespCumpMetaActual;
 
           return [
             {
               actual_menos_ahorro_real: actualMenosAhorroReal,
               ...indicadores[0],
-              disp_desp_cump_meta_actual: saldoTrasMeta,
+              disp_desp_cump_meta_actual: saldoTrasMetaActual,
             },
           ];
         })()
       : [];
-  }, [indicadores, resumenMensual, resumenRealVsEstimado]);
+  }, [indicadores, saldoTrasMetaActual]);
 
   const handleGastoFijoToggle = useCallback(
     (item, mes) => {
@@ -126,7 +121,7 @@ export default function useDashboardData() {
     resumenGastos,
     resumenTabla,
     indicadoresDerivados,
-    resumenRealVsEstimado,
+    resumenRealVsEstimado: resumenRealVsEstimadoAjustado,
     totalesCategoria,
     datos,
     columnas,
