@@ -14,7 +14,6 @@ const resolveApiBase = () => {
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
       return LOCAL_API_BASE;
     }
-
     return `//${hostname}:5000`;
   }
 

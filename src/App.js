@@ -28,7 +28,7 @@ function App() {
     setIsLoggedIn(false);
   };
   if (!isLoggedIn) return <Login onLogin={() => setIsLoggedIn(true)} />;
-
+  
   const navItems = [
     { id: 'dashboard', label: 'Inicio', icon: FaHome },
     { id: 'registrar', label: 'Movimientos', icon: FaReceipt },
