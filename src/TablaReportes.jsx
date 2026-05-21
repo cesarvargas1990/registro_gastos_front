@@ -56,6 +56,7 @@ export default function TablaReportes() {
     { label: 'Valor', field: 'valor' },
     { label: 'Fecha', field: 'fecha' },
     { label: 'Categoria', field: 'nombre_categoria' },
+    { label: 'Tipo Movimiento', field: 'nombre_tipo_movimiento' },
     { label: 'Fecha Final de Pago', field: 'fecha_final_pago' },
   ];
 
@@ -232,6 +233,9 @@ export default function TablaReportes() {
                     {mov.fecha ? new Date(mov.fecha).toLocaleDateString('es-ES') : ''}
                   </td>
                   <td className="min-w-48 px-4 py-3">{mov.nombre_categoria}</td>
+                  <td className="min-w-52 px-4 py-3">
+                    {mov.nombre_tipo_movimiento || 'Sin clasificar'}
+                  </td>
                   <td className="whitespace-nowrap px-4 py-3">
                     {mov.fecha_final_pago
                       ? new Date(mov.fecha_final_pago).toLocaleDateString('es-ES')
@@ -261,7 +265,7 @@ export default function TablaReportes() {
                     Total
                   </td>
                   <td className="px-4 py-3 text-right">{`$${total.toLocaleString('es-CO')}`}</td>
-                  <td className="px-4 py-3" colSpan={4}></td>
+                  <td className="px-4 py-3" colSpan={5}></td>
                 </tr>
               )}
             </tbody>

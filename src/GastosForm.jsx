@@ -15,6 +15,8 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
   const [valor, setValor] = useState('');
   const [fecha, setFecha] = useState('');
   const [categoriaId, setCategoriaId] = useState('');
+  const [tipoMovimientoId, setTipoMovimientoId] = useState('');
+  const [tiposMovimiento, setTiposMovimiento] = useState([]);
   const [fechaFinalPago, setFechaFinalPago] = useState('');
   const [error, setError] = useState('');
   const [exito, setExito] = useState('');
@@ -24,16 +26,24 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
     setValor('');
     setFecha('');
     setCategoriaId('');
+    setTipoMovimientoId('');
     setFechaFinalPago('');
   };
 
   useEffect(() => {
+    axios
+      .get(`${API_BASE}/tipos-movimiento`)
+      .then((response) => setTiposMovimiento(response.data || []))
+      .catch((err) => console.error('Error cargando tipos de movimiento:', err));
+  }, []);
+
+  useEffect(() => {
     if (gastoInicial) {
-      console.log(gastoInicial);
       setDescripcion(gastoInicial.descripcion || '');
       setValor(gastoInicial.valor || '');
       setFecha(formatoFechaInput(gastoInicial.fecha) || '');
       setCategoriaId(gastoInicial.categoria_id?.toString() || '');
+      setTipoMovimientoId(gastoInicial.tipo_movimiento_id?.toString() || '');
       setFechaFinalPago(formatoFechaInput(gastoInicial.fecha_final_pago) || '');
     }
   }, [gastoInicial]);
@@ -49,22 +59,21 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
 
     try {
       if (gastoInicial) {
-        console.log(gastoInicial);
-        console.log(descripcion, valor, fecha, categoriaId, fechaFinalPago);
         await axios.put(`${API_BASE}/movimientos/${gastoInicial.id}`, {
           descripcion,
           valor,
           fecha,
           categoria_id: parseInt(categoriaId),
+          tipo_movimiento_id: tipoMovimientoId ? parseInt(tipoMovimientoId) : null,
           fecha_final_pago: fechaFinalPago || null,
         });
       } else {
-        console.log(descripcion, valor, fecha, categoriaId, fechaFinalPago);
         await axios.post(`${API_BASE}/movimientos`, {
           descripcion,
           valor,
           fecha,
           categoria_id: parseInt(categoriaId),
+          tipo_movimiento_id: tipoMovimientoId ? parseInt(tipoMovimientoId) : null,
           fecha_final_pago: fechaFinalPago || null,
         });
 
@@ -131,6 +140,18 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
             onChange={(e) => setFecha(e.target.value)}
           />
           <FiltroCategorias value={categoriaId} onChange={setCategoriaId} className="w-full" />
+          <select
+            className={`${inputClass} w-full`}
+            value={tipoMovimientoId}
+            onChange={(e) => setTipoMovimientoId(e.target.value)}
+          >
+            <option value="">Selecciona un tipo de movimiento</option>
+            {tiposMovimiento.map((tipo) => (
+              <option key={tipo.id} value={tipo.id}>
+                {tipo.nombre}
+              </option>
+            ))}
+          </select>
           <input
             type="date"
             placeholder="Fecha Final de Pago (opcional)"

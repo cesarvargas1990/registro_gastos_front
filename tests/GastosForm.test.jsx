@@ -19,17 +19,28 @@ jest.mock('../src/FiltroCategorias', () => (props) => (
 jest.mock('axios');
 
 describe('GastosForm', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    axios.get.mockResolvedValue({
+      data: [
+        { id: 1, nombre: 'Alimentación' },
+        { id: 2, nombre: 'Transporte' },
+      ],
+    });
+  });
+
   it('renderiza GastosForm correctamente', () => {
     render(<GastosForm />);
     expect(screen.getByText(/registrar movimiento/i)).toBeInTheDocument();
   });
 
-  it('renderiza en modo edición con gastoInicial', () => {
+  it('renderiza en modo edición con gastoInicial', async () => {
     const gasto = {
       descripcion: 'Test',
       valor: 100,
       fecha: '2025-01-01',
       categoria_id: 1,
+      tipo_movimiento_id: 2,
       fecha_final_pago: '2025-01-10',
       id: 5,
     };
@@ -37,6 +48,7 @@ describe('GastosForm', () => {
     expect(screen.getByDisplayValue('Test')).toBeInTheDocument();
     expect(screen.getByDisplayValue('100')).toBeInTheDocument();
     expect(screen.getByText(/editar movimiento/i)).toBeInTheDocument();
+    expect(await screen.findByDisplayValue('Transporte')).toBeInTheDocument();
   });
 
   it('muestra error si faltan campos obligatorios', async () => {
@@ -73,8 +85,17 @@ describe('GastosForm', () => {
       { target: { value: '2025-01-01' } }
     );
     fireEvent.change(screen.getByTestId('filtro-categorias'), { target: { value: '1' } });
+    fireEvent.change(await screen.findByDisplayValue(/selecciona un tipo de movimiento/i), {
+      target: { value: '1' },
+    });
     fireEvent.click(screen.getByText(/guardar/i));
     await waitFor(() => expect(axios.post).toHaveBeenCalled());
+    expect(axios.post).toHaveBeenCalledWith(
+      expect.stringContaining('/movimientos'),
+      expect.objectContaining({
+        tipo_movimiento_id: 1,
+      })
+    );
     expect(await screen.findByText(/exitosamente/i)).toBeInTheDocument();
   });
 
@@ -85,6 +106,7 @@ describe('GastosForm', () => {
       valor: 100,
       fecha: '2025-01-01',
       categoria_id: 1,
+      tipo_movimiento_id: 2,
       fecha_final_pago: '2025-01-10',
       id: 5,
     };
@@ -130,6 +152,7 @@ describe('GastosForm', () => {
       expect.stringContaining('/movimientos'),
       expect.objectContaining({
         fecha_final_pago: '2025-01-31',
+        tipo_movimiento_id: null,
       })
     );
     expect(onSuccess).toHaveBeenCalled();

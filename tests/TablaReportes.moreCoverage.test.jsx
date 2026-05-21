@@ -42,6 +42,7 @@ const getData = () => [
     valor: 500,
     fecha: '2026-01-01',
     nombre_categoria: 'Ingreso',
+    nombre_tipo_movimiento: 'Ingresos',
     categoria_id: 1,
     fecha_final_pago: '2026-01-05',
   },
@@ -51,6 +52,7 @@ const getData = () => [
     valor: 500,
     fecha: '2026-03-15',
     nombre_categoria: 'Gasto',
+    nombre_tipo_movimiento: 'Alimentación',
     categoria_id: 2,
     fecha_final_pago: null,
   },
@@ -63,6 +65,7 @@ const getPaginatedData = () =>
     valor: index + 100,
     fecha: '2026-01-01',
     nombre_categoria: 'Ingreso',
+    nombre_tipo_movimiento: 'Ingresos',
     categoria_id: 1,
     fecha_final_pago: null,
   }));
@@ -90,6 +93,8 @@ describe('TablaReportes more coverage', () => {
     render(<TablaReportes />);
     expect(await screen.findByText('Ingreso A')).toBeInTheDocument();
     expect(screen.getByText('Gasto B')).toBeInTheDocument();
+    expect(screen.getByText('Tipo Movimiento')).toBeInTheDocument();
+    expect(screen.getByText('Alimentación')).toBeInTheDocument();
 
     const dateInputs = document.querySelectorAll('input[type="date"]');
     fireEvent.change(dateInputs[0], { target: { value: '2026-03-01' } });
