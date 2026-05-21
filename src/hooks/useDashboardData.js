@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getJson, postJson } from '../utils/api.js';
-import { aplicarSaldoAcumuladoTrasMeta, hasFiniteNumber } from '../utils/estimadoVsReal.js';
+import { aplicarSaldoAcumuladoTrasMeta, hasFiniteNumber } from '../utils/format.js';
 import { MESES } from '../utils/meses.js';
 
 const ordenarResumenCategorias = (data) => {

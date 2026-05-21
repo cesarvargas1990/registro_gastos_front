@@ -1,7 +1,6 @@
 import React from 'react';
 import { FaTable } from 'react-icons/fa';
-import { calcularDisponibleGastos } from '../../utils/estimadoVsReal';
-import { formatCurrency } from '../../utils/format';
+import { calcularDisponibleGastos, formatCurrency } from '../../utils/format';
 
 export default function EstimadoVsRealSection({ resumenRealVsEstimado, meses }) {
   const mesActual = meses[new Date().getMonth()];
