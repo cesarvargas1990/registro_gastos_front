@@ -3,6 +3,49 @@ import { getJson, postJson } from '../utils/api.js';
 import { aplicarSaldoAcumuladoTrasMeta, hasFiniteNumber } from '../utils/format.js';
 import { MESES } from '../utils/meses.js';
 
+const baseResumenCategoriasOrder = [
+  'Ingreso',
+  'Ingreso Bolsillo Objetivo25y26',
+  'Retiro Bolsillo Objetivo25y26',
+  'Gasto fijo',
+  'Gasto',
+  'Gastos viaje 2026',
+  'total_mes',
+];
+
+const calculatedResumenCategoriasOrder = [
+  'Meta Ahorro',
+  'Ingreso Neto Est',
+  'Ingreso Real',
+  'Diff Ingreso',
+  'Meta Ahorro Est',
+  'Ahorro Real',
+  'Diff Ahorro',
+  'Gastos Fijos Est',
+  'Gastos Fijos Real',
+  'Diff Gastos Fijos',
+  'Gastos Adicionales',
+  'Disponible Estimado',
+  'Disponible Real',
+];
+
+const orderResumenCategoriasColumns = (columnas) => {
+  const columnasSinMes = columnas.filter((col) => col !== 'Mes');
+  const usedColumns = new Set();
+  const takeKnownColumns = (orderedColumns) =>
+    orderedColumns.filter((col) => {
+      const exists = columnasSinMes.includes(col);
+      if (exists) usedColumns.add(col);
+      return exists;
+    });
+
+  const baseColumns = takeKnownColumns(baseResumenCategoriasOrder);
+  const calculatedColumns = takeKnownColumns(calculatedResumenCategoriasOrder);
+  const extraColumns = columnasSinMes.filter((col) => !usedColumns.has(col));
+
+  return ['Mes', ...baseColumns, ...extraColumns, ...calculatedColumns];
+};
+
 const ordenarResumenCategorias = (data) => {
   if (!data.length) {
     return { datosOrdenados: [], columnasFinal: [] };
@@ -10,7 +53,7 @@ const ordenarResumenCategorias = (data) => {
 
   const datosOrdenados = [...data].sort((a, b) => MESES.indexOf(a.Mes) - MESES.indexOf(b.Mes));
   const columnasDinamicas = Object.keys(data[0]);
-  const columnasFinal = ['Mes', ...columnasDinamicas.filter((c) => c !== 'Mes')];
+  const columnasFinal = orderResumenCategoriasColumns(columnasDinamicas);
 
   return { datosOrdenados, columnasFinal };
 };

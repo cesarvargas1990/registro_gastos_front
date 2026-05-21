@@ -133,6 +133,41 @@ describe('useDashboardData coverage', () => {
     expect(result.current.columnas).toEqual([]);
   });
 
+  it('ordena columnas de resumen categorias con base primero y calculadas despues', async () => {
+    setGetJsonImplementation({
+      '/resumen-categorias-mensual': () =>
+        Promise.resolve([
+          {
+            'Disponible Estimado': 837378,
+            'Disponible Real': 1017741,
+            'Diff Ingreso': 0,
+            Gasto: 0,
+            Ingreso: 5157015,
+            Mes: 'Enero',
+            'Ingreso Neto Est': 9657015,
+            total_mes: 5337378,
+            Nota: 'extra',
+          },
+        ]),
+    });
+
+    const { result } = renderHook(() => useDashboardData());
+
+    await waitFor(() => {
+      expect(result.current.columnas).toEqual([
+        'Mes',
+        'Ingreso',
+        'Gasto',
+        'total_mes',
+        'Nota',
+        'Ingreso Neto Est',
+        'Diff Ingreso',
+        'Disponible Estimado',
+        'Disponible Real',
+      ]);
+    });
+  });
+
   it('logs errores al obtener totales y resumen categorias', async () => {
     const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     setGetJsonImplementation({

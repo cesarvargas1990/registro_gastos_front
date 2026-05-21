@@ -49,4 +49,28 @@ describe('ResumenCategoriasSection', () => {
     expect(screen.getByText('sin cambios')).toBeInTheDocument();
     expect(screen.getAllByText(/\$\s*200,00/)).toHaveLength(2);
   });
+
+  it('pinta las columnas calculadas y diferencia negativa', () => {
+    const columnas = ['Mes', 'Ingreso', 'Ingreso Neto Est', 'Diff Ingreso'];
+    const datos = [
+      {
+        Mes: 'Enero',
+        Ingreso: 1000,
+        'Ingreso Neto Est': 1500,
+        'Diff Ingreso': -200,
+      },
+    ];
+
+    render(<ResumenCategoriasSection columnas={columnas} datos={datos} />);
+
+    expect(screen.getByRole('columnheader', { name: 'Ingreso Neto Est' })).toHaveClass(
+      'bg-cyan-100/80'
+    );
+    expect(screen.getByRole('columnheader', { name: 'Diff Ingreso' })).toHaveClass(
+      'bg-cyan-100/80'
+    );
+    const filaEnero = screen.getByText('Enero').closest('tr');
+    expect(within(filaEnero).getByText(/\$\s*1\.500,00/)).toHaveClass('bg-cyan-50/70');
+    expect(within(filaEnero).getByText(/\$\s*-200,00/)).toHaveClass('bg-rose-50');
+  });
 });

@@ -1,6 +1,38 @@
 import React from 'react';
 import { FaTable } from 'react-icons/fa';
 
+const calculatedColumns = new Set([
+  'Meta Ahorro',
+  'Ingreso Neto Est',
+  'Ingreso Real',
+  'Diff Ingreso',
+  'Meta Ahorro Est',
+  'Ahorro Real',
+  'Diff Ahorro',
+  'Gastos Fijos Est',
+  'Gastos Fijos Real',
+  'Diff Gastos Fijos',
+  'Gastos Adicionales',
+  'Disponible Estimado',
+  'Disponible Real',
+]);
+
+const diffColumns = new Set(['Diff Ingreso', 'Diff Ahorro', 'Diff Gastos Fijos']);
+
+const isCalculatedColumn = (column) => calculatedColumns.has(column);
+
+const getCalculatedCellTone = (column, value) => {
+  if (!isCalculatedColumn(column)) return '';
+
+  const numericValue = Number(value);
+  if (diffColumns.has(column) && Number.isFinite(numericValue)) {
+    if (numericValue < 0) return 'bg-rose-50 text-rose-600';
+    if (numericValue > 0) return 'bg-emerald-50 text-emerald-600';
+  }
+
+  return 'bg-cyan-50/70 text-[#0f2a5f]';
+};
+
 export default function ResumenCategoriasSection({ columnas, datos }) {
   const meses = [
     'Enero',
@@ -30,7 +62,12 @@ export default function ResumenCategoriasSection({ columnas, datos }) {
           <thead className="bg-indigo-50/70 text-[11px] font-black text-[#27356d]">
             <tr>
               {columnas.map((col) => (
-                <th key={col} className="border border-indigo-100 px-3 py-2 capitalize">
+                <th
+                  key={col}
+                  className={`border border-indigo-100 px-3 py-2 capitalize ${
+                    isCalculatedColumn(col) ? 'bg-cyan-100/80 text-[#0b2f66]' : ''
+                  }`}
+                >
                   {col.replace('_', ' ')}
                 </th>
               ))}
@@ -44,16 +81,24 @@ export default function ResumenCategoriasSection({ columnas, datos }) {
                   : 'odd:bg-white even:bg-slate-50/65';
               return (
                 <tr key={i} className={rowClass}>
-                  {columnas.map((col) => (
-                    <td key={col} className="whitespace-nowrap border border-indigo-50 px-3 py-2">
-                      {!isNaN(Number(fila[col]))
-                        ? `$ ${Number(fila[col]).toLocaleString('es-CO', {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}`
-                        : fila[col]}
-                    </td>
-                  ))}
+                  {columnas.map((col) => {
+                    const value = fila[col];
+                    return (
+                      <td
+                        key={col}
+                        className={`whitespace-nowrap border border-indigo-50 px-3 py-2 ${
+                          isCalculatedColumn(col) ? 'font-bold' : ''
+                        } ${getCalculatedCellTone(col, value)}`}
+                      >
+                        {!isNaN(Number(value))
+                          ? `$ ${Number(value).toLocaleString('es-CO', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}`
+                          : value}
+                      </td>
+                    );
+                  })}
                 </tr>
               );
             })}
@@ -67,7 +112,12 @@ export default function ResumenCategoriasSection({ columnas, datos }) {
                   : '';
 
                 return (
-                  <td key={col} className="whitespace-nowrap border border-indigo-100 px-3 py-2">
+                  <td
+                    key={col}
+                    className={`whitespace-nowrap border border-indigo-100 px-3 py-2 ${
+                      isCalculatedColumn(col) ? 'bg-cyan-100/80 text-[#0b2f66]' : ''
+                    }`}
+                  >
                     {index === 0
                       ? 'Total'
                       : esNumerico

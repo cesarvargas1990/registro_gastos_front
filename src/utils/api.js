@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const LOCAL_API_BASE = '//127.0.0.1:5000';
+const LOCAL_API_BASE = '//localhost:5000';
 const REMOTE_API_BASE = '//147.93.1.252:5000';
 
 const resolveApiBase = () => {
