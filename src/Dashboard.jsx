@@ -6,6 +6,7 @@ import {
   BarElement,
   PointElement,
   LineElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend,
@@ -16,6 +17,7 @@ import IndicadoresSection from './components/dashboard/IndicadoresSection';
 import EstimadoVsRealSection from './components/dashboard/EstimadoVsRealSection';
 import ResumenCategoriasSection from './components/dashboard/ResumenCategoriasSection';
 import TotalesCategoriaSection from './components/dashboard/TotalesCategoriaSection';
+import MovimientosTipoPieSection from './components/dashboard/MovimientosTipoPieSection';
 import useDashboardData from './hooks/useDashboardData';
 import { iconMap, labelMap } from './utils/dashboardMaps';
 
@@ -25,6 +27,7 @@ ChartJS.register(
   BarElement,
   PointElement,
   LineElement,
+  ArcElement,
   Title,
   Tooltip,
   Legend
@@ -73,6 +76,8 @@ export default function Dashboard() {
       <ResumenCategoriasSection columnas={columnas} datos={datos} />
 
       <TotalesCategoriaSection totalesCategoria={totalesCategoria} />
+
+      <MovimientosTipoPieSection />
     </main>
   );
 }

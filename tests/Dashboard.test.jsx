@@ -15,6 +15,7 @@ jest.mock('chart.js', () => ({
   BarElement: {},
   PointElement: {},
   LineElement: {},
+  ArcElement: {},
   Title: {},
   Tooltip: {},
   Legend: {},
@@ -22,6 +23,7 @@ jest.mock('chart.js', () => ({
 jest.mock('react-chartjs-2', () => ({
   Bar: () => <div>Bar chart mock</div>,
   Line: () => <div>Line chart mock</div>,
+  Pie: () => <div>Pie chart mock</div>,
 }));
 
 test('renderiza Dashboard correctamente', async () => {
@@ -32,4 +34,5 @@ test('renderiza Dashboard correctamente', async () => {
   expect(screen.getAllByText(/total por mes/i).length).toBeGreaterThan(0);
   expect(screen.getByText(/ahorros y estimaciones/i)).toBeInTheDocument();
   expect(screen.getByText(/resumen de gastos fijos/i)).toBeInTheDocument();
+  expect(screen.getByText(/movimientos por tipo/i)).toBeInTheDocument();
 });
