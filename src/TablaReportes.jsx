@@ -122,7 +122,7 @@ export default function TablaReportes() {
     const movimientoId = getMovimientoIdValido(movAEliminar?.id);
 
     if (!movimientoId) {
-      console.error('Id de movimiento inválido:', movAEliminar?.id);
+      console.error('Id de movimiento inválido');
       return;
     }
 

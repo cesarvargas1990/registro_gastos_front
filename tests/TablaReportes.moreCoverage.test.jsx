@@ -180,7 +180,7 @@ describe('TablaReportes more coverage', () => {
     });
 
     expect(axios.delete).not.toHaveBeenCalled();
-    expect(errorSpy).toHaveBeenCalledWith('Id de movimiento inválido:', '../1');
+    expect(errorSpy).toHaveBeenCalledWith('Id de movimiento inválido');
     errorSpy.mockRestore();
   });
 
