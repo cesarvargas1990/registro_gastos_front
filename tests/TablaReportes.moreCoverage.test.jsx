@@ -159,6 +159,31 @@ describe('TablaReportes more coverage', () => {
     errorSpy.mockRestore();
   });
 
+  it('no elimina cuando el id del movimiento no es válido', async () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    axios.get.mockResolvedValueOnce({
+      data: [
+        {
+          ...getData()[0],
+          id: '../1',
+        },
+      ],
+    });
+
+    render(<TablaReportes />);
+    const deleteBtn = await screen.findByTitle('Eliminar');
+
+    fireEvent.click(deleteBtn);
+    const confirmBtn = await screen.findByText('Eliminar');
+    await act(async () => {
+      fireEvent.click(confirmBtn);
+    });
+
+    expect(axios.delete).not.toHaveBeenCalled();
+    expect(errorSpy).toHaveBeenCalledWith('Id de movimiento inválido:', '../1');
+    errorSpy.mockRestore();
+  });
+
   it('ejecuta onSuccess del modal de edición y recarga movimientos', async () => {
     render(<TablaReportes />);
     const editBtns = await screen.findAllByTitle('Editar');

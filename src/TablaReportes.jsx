@@ -43,6 +43,11 @@ const getTipoMovimientoKey = (item) => {
   return item?.nombre_tipo_movimiento ? `nombre:${item.nombre_tipo_movimiento}` : '';
 };
 
+const getMovimientoIdValido = (value) => {
+  const id = Number(value);
+  return Number.isSafeInteger(id) && id > 0 ? id : null;
+};
+
 export default function TablaReportes() {
   const [movimientos, setMovimientos] = useState([]);
   const [searchDesc, setSearchDesc] = useState('');
@@ -114,8 +119,15 @@ export default function TablaReportes() {
   };
 
   const eliminarConfirmado = async () => {
+    const movimientoId = getMovimientoIdValido(movAEliminar?.id);
+
+    if (!movimientoId) {
+      console.error('Id de movimiento inválido:', movAEliminar?.id);
+      return;
+    }
+
     try {
-      await axios.delete(`${API_BASE}/movimientos/${movAEliminar.id}`);
+      await axios.delete(`${API_BASE}/movimientos/${movimientoId}`);
       cargarMovimientos();
       setMostrarModal(false);
       setMovAEliminar(null);
