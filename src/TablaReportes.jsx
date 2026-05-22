@@ -35,10 +35,20 @@ const getSortValue = (item, field) => {
   return String(value ?? '').toLocaleLowerCase('es-CO');
 };
 
+const getTipoMovimientoKey = (item) => {
+  if (item?.tipo_movimiento_id !== null && item?.tipo_movimiento_id !== undefined) {
+    return String(item.tipo_movimiento_id);
+  }
+
+  return item?.nombre_tipo_movimiento ? `nombre:${item.nombre_tipo_movimiento}` : '';
+};
+
 export default function TablaReportes() {
   const [movimientos, setMovimientos] = useState([]);
   const [searchDesc, setSearchDesc] = useState('');
   const [searchCat, setSearchCat] = useState('');
+  const [searchTipoMovimiento, setSearchTipoMovimiento] = useState('');
+  const [tiposMovimiento, setTiposMovimiento] = useState([]);
   const [sortField, setSortField] = useState('id');
   const [sortDirection, setSortDirection] = useState('asc');
   const [currentPage, setCurrentPage] = useState(1);
@@ -62,6 +72,7 @@ export default function TablaReportes() {
 
   useEffect(() => {
     cargarMovimientos();
+    cargarTiposMovimiento();
   }, []);
 
   const cargarMovimientos = () => {
@@ -70,6 +81,32 @@ export default function TablaReportes() {
       .then((response) => setMovimientos(response.data))
       .catch((error) => console.error('Error cargando movimientos:', error));
   };
+
+  const cargarTiposMovimiento = () => {
+    axios
+      .get(`${API_BASE}/tipos-movimiento`)
+      .then((response) => setTiposMovimiento(response.data || []))
+      .catch((error) => console.error('Error cargando tipos de movimiento:', error));
+  };
+
+  const tiposMovimientoOptions = useMemo(() => {
+    const options = new Map();
+
+    tiposMovimiento.forEach((tipo) => {
+      if (tipo?.id && tipo?.nombre) {
+        options.set(String(tipo.id), tipo.nombre);
+      }
+    });
+
+    movimientos.forEach((movimiento) => {
+      const key = getTipoMovimientoKey(movimiento);
+      if (key && movimiento.nombre_tipo_movimiento && !options.has(key)) {
+        options.set(key, movimiento.nombre_tipo_movimiento);
+      }
+    });
+
+    return Array.from(options, ([value, label]) => ({ value, label }));
+  }, [tiposMovimiento, movimientos]);
 
   const confirmarEliminar = (mov) => {
     setMovAEliminar(mov);
@@ -91,9 +128,17 @@ export default function TablaReportes() {
     let filtered = movimientos.filter((item) => {
       const cumpleDescripcion = item.descripcion?.toLowerCase().includes(searchDesc);
       const cumpleCategoria = searchCat === '' || item.categoria_id?.toString() === searchCat;
+      const cumpleTipoMovimiento =
+        searchTipoMovimiento === '' || getTipoMovimientoKey(item) === searchTipoMovimiento;
       const cumpleFechaInicio = !fechaInicio || new Date(item.fecha) >= new Date(fechaInicio);
       const cumpleFechaFin = !fechaFin || new Date(item.fecha) <= new Date(fechaFin);
-      return cumpleDescripcion && cumpleCategoria && cumpleFechaInicio && cumpleFechaFin;
+      return (
+        cumpleDescripcion &&
+        cumpleCategoria &&
+        cumpleTipoMovimiento &&
+        cumpleFechaInicio &&
+        cumpleFechaFin
+      );
     });
 
     return filtered.sort((a, b) => {
@@ -109,7 +154,16 @@ export default function TablaReportes() {
       if (aValue > bValue) return 1 * direction;
       return 0;
     });
-  }, [movimientos, searchDesc, searchCat, sortField, sortDirection, fechaInicio, fechaFin]);
+  }, [
+    movimientos,
+    searchDesc,
+    searchCat,
+    searchTipoMovimiento,
+    sortField,
+    sortDirection,
+    fechaInicio,
+    fechaFin,
+  ]);
 
   useEffect(() => {
     const nuevoTotal = filteredData.reduce((acc, mov) => acc + (parseFloat(mov.valor) || 0), 0);
@@ -133,6 +187,7 @@ export default function TablaReportes() {
   const limpiarFiltros = () => {
     setSearchDesc('');
     setSearchCat('');
+    setSearchTipoMovimiento('');
     setFechaInicio('');
     setFechaFin('');
     setItemsPerPage(20);
@@ -151,7 +206,7 @@ export default function TablaReportes() {
         </p>
       </header>
 
-      <div className="mb-5 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/70 md:grid-cols-3">
+      <div className="mb-5 grid grid-cols-1 gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/70 md:grid-cols-2 xl:grid-cols-4">
         <input
           type="text"
           placeholder="Filtrar por descripción..."
@@ -161,6 +216,22 @@ export default function TablaReportes() {
         />
 
         <FiltroCategorias className="w-full" onChange={(val) => setSearchCat(val)} />
+
+        <select
+          className={`${inputClass} w-full`}
+          value={searchTipoMovimiento}
+          onChange={(e) => {
+            setSearchTipoMovimiento(e.target.value);
+            setCurrentPage(1);
+          }}
+        >
+          <option value="">Selecciona un tipo de movimiento</option>
+          {tiposMovimientoOptions.map((tipo) => (
+            <option key={tipo.value} value={tipo.value}>
+              {tipo.label}
+            </option>
+          ))}
+        </select>
 
         <select
           className={`${inputClass} w-full`}
@@ -193,7 +264,7 @@ export default function TablaReportes() {
 
         <button
           onClick={limpiarFiltros}
-          className="h-12 w-full rounded-xl bg-red-500 px-4 text-sm font-bold text-white shadow-lg shadow-red-100 transition hover:bg-red-600"
+          className="h-12 w-full rounded-xl bg-red-500 px-4 text-sm font-bold text-white shadow-lg shadow-red-100 transition hover:bg-red-600 xl:col-span-2"
         >
           Limpiar filtros
         </button>

@@ -44,6 +44,7 @@ const getData = () => [
     nombre_categoria: 'Ingreso',
     nombre_tipo_movimiento: 'Ingresos',
     categoria_id: 1,
+    tipo_movimiento_id: 10,
     fecha_final_pago: '2026-01-05',
   },
   {
@@ -54,6 +55,7 @@ const getData = () => [
     nombre_categoria: 'Gasto',
     nombre_tipo_movimiento: 'Alimentación',
     categoria_id: 2,
+    tipo_movimiento_id: 20,
     fecha_final_pago: null,
   },
 ];
@@ -67,6 +69,7 @@ const getPaginatedData = () =>
     nombre_categoria: 'Ingreso',
     nombre_tipo_movimiento: 'Ingresos',
     categoria_id: 1,
+    tipo_movimiento_id: 10,
     fecha_final_pago: null,
   }));
 
@@ -94,7 +97,7 @@ describe('TablaReportes more coverage', () => {
     expect(await screen.findByText('Ingreso A')).toBeInTheDocument();
     expect(screen.getByText('Gasto B')).toBeInTheDocument();
     expect(screen.getByText('Tipo Movimiento')).toBeInTheDocument();
-    expect(screen.getByText('Alimentación')).toBeInTheDocument();
+    expect(screen.getAllByText('Alimentación').length).toBeGreaterThan(0);
 
     const dateInputs = document.querySelectorAll('input[type="date"]');
     fireEvent.change(dateInputs[0], { target: { value: '2026-03-01' } });
@@ -112,6 +115,22 @@ describe('TablaReportes more coverage', () => {
     fireEvent.click(screen.getByText('Limpiar filtros'));
     await waitFor(() => {
       expect(screen.getByText('Ingreso A')).toBeInTheDocument();
+      expect(screen.getByText('Gasto B')).toBeInTheDocument();
+    });
+  });
+
+  it('filtra por tipo de movimiento', async () => {
+    render(<TablaReportes />);
+
+    expect(await screen.findByText('Ingreso A')).toBeInTheDocument();
+    expect(screen.getByText('Gasto B')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByDisplayValue('Selecciona un tipo de movimiento'), {
+      target: { value: '20' },
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Ingreso A')).not.toBeInTheDocument();
       expect(screen.getByText('Gasto B')).toBeInTheDocument();
     });
   });
@@ -151,7 +170,13 @@ describe('TablaReportes more coverage', () => {
     await waitFor(() => {
       expect(screen.queryByTestId('mock-gastosform')).not.toBeInTheDocument();
     });
-    expect(axios.get).toHaveBeenCalledTimes(2);
+    const movimientosCalls = axios.get.mock.calls.filter(([url]) => url.includes('/movimientos'));
+    const tiposMovimientoCalls = axios.get.mock.calls.filter(([url]) =>
+      url.includes('/tipos-movimiento')
+    );
+
+    expect(movimientosCalls).toHaveLength(2);
+    expect(tiposMovimientoCalls).toHaveLength(1);
   });
 
   it('permite cambiar de página cuando hay más resultados que el límite', async () => {
