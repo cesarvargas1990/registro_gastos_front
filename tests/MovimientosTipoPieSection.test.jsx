@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import MovimientosTipoPieSection from '../src/components/dashboard/MovimientosTipoPieSection.jsx';
 import { getJson } from '../src/utils/api.js';
+import { formatCurrency } from '../src/utils/format.js';
 
 jest.mock('../src/utils/api.js', () => ({
   getJson: jest.fn(),
@@ -38,7 +39,7 @@ describe('MovimientosTipoPieSection', () => {
     expect(screen.getByText('Gimnasio y deporte')).toBeInTheDocument();
     expect(screen.getByText('Pie chart mock')).toBeInTheDocument();
     expect(
-      screen.getByText((content) => content.replace(/\s/g, ' ') === '$ 100.000,00')
+      screen.getByText((_, node) => node?.textContent === formatCurrency(100000))
     ).toBeInTheDocument();
   });
 
