@@ -115,7 +115,11 @@ export default function MovimientosTipoPieSection() {
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <select className={inputClass} value={anio} onChange={(e) => setAnio(Number(e.target.value))}>
+          <select
+            className={inputClass}
+            value={anio}
+            onChange={(e) => setAnio(Number(e.target.value))}
+          >
             {anios.map((item) => (
               <option key={item} value={item}>
                 {item}
@@ -123,7 +127,11 @@ export default function MovimientosTipoPieSection() {
             ))}
           </select>
 
-          <select className={inputClass} value={mes} onChange={(e) => setMes(Number(e.target.value))}>
+          <select
+            className={inputClass}
+            value={mes}
+            onChange={(e) => setMes(Number(e.target.value))}
+          >
             {MESES.map((nombreMes, index) => (
               <option key={nombreMes} value={index + 1}>
                 {nombreMes}
@@ -211,7 +219,9 @@ export default function MovimientosTipoPieSection() {
         </div>
       ) : (
         <div className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-sm font-bold text-slate-400">
-          {loading ? 'Cargando movimientos...' : 'No hay movimientos para los filtros seleccionados'}
+          {loading
+            ? 'Cargando movimientos...'
+            : 'No hay movimientos para los filtros seleccionados'}
         </div>
       )}
     </section>
