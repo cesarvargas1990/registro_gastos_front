@@ -4,17 +4,29 @@ import GastosForm from '../src/GastosForm.jsx';
 import axios from 'axios';
 
 // Mock FiltroCategorias para evitar fetch real y errores de categorias.map
-jest.mock('../src/FiltroCategorias', () => (props) => (
-  <select
-    data-testid="filtro-categorias"
-    value={props.value}
-    onChange={(e) => props.onChange(e.target.value)}
-  >
-    <option value="">Selecciona una categoría</option>
-    <option value="1">Categoría 1</option>
-    <option value="2">Categoría 2</option>
-  </select>
-));
+jest.mock('../src/FiltroCategorias', () => (props) => {
+  const categorias = props.categorias?.length
+    ? props.categorias
+    : [
+        { id: 1, nombre: 'Categoría 1' },
+        { id: 2, nombre: 'Categoría 2' },
+      ];
+
+  return (
+    <select
+      data-testid="filtro-categorias"
+      value={props.value}
+      onChange={(e) => props.onChange(e.target.value)}
+    >
+      <option value="">Selecciona una categoría</option>
+      {categorias.map((categoria) => (
+        <option key={categoria.id} value={categoria.id}>
+          {categoria.nombre}
+        </option>
+      ))}
+    </select>
+  );
+});
 
 jest.mock('axios');
 
@@ -97,6 +109,91 @@ describe('GastosForm', () => {
       })
     );
     expect(await screen.findByText(/exitosamente/i)).toBeInTheDocument();
+  });
+
+  it('registra retiro de bolsillo y gasto en un solo guardado', async () => {
+    axios.get.mockImplementation((url) => {
+      if (url.includes('/tipos-movimiento')) {
+        return Promise.resolve({
+          data: [
+            { id: 7, nombre: 'Ahorro / bolsillo' },
+            { id: 9, nombre: 'Mascota / cuidado Lennon' },
+          ],
+        });
+      }
+
+      return Promise.resolve({
+        data: [
+          { id: 3, nombre: 'Retiro Bolsillo Objetivo25y26' },
+          { id: 4, nombre: 'Gasto' },
+        ],
+      });
+    });
+    axios.post.mockResolvedValue({});
+
+    render(<GastosForm />);
+    fireEvent.click(screen.getByLabelText(/gasto desde bolsillo/i));
+    fireEvent.change(screen.getByPlaceholderText(/descripción/i), {
+      target: { value: 'pago prueba' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/valor/i), { target: { value: '60000' } });
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    fireEvent.change(dateInputs[0], { target: { value: '2026-06-29' } });
+    expect(await screen.findByText('Gasto')).toBeInTheDocument();
+    fireEvent.change(screen.getByTestId('filtro-categorias'), { target: { value: '4' } });
+    expect(screen.getByTestId('filtro-categorias').value).toBe('4');
+    fireEvent.change(await screen.findByDisplayValue(/selecciona un tipo de movimiento/i), {
+      target: { value: '9' },
+    });
+    fireEvent.click(screen.getByText(/guardar/i));
+
+    await waitFor(() => expect(axios.post).toHaveBeenCalledTimes(2));
+    expect(axios.post).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining('/movimientos'),
+      expect.objectContaining({
+        categoria_id: 3,
+        fecha_final_pago: null,
+        tipo_movimiento_id: 7,
+      })
+    );
+    expect(axios.post).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining('/movimientos'),
+      expect.objectContaining({
+        categoria_id: 4,
+        tipo_movimiento_id: 9,
+      })
+    );
+    expect(await screen.findByText(/retiro y gasto registrados exitosamente/i)).toBeInTheDocument();
+  });
+
+  it('muestra error si falta la categoría de retiro de bolsillo', async () => {
+    axios.get.mockImplementation((url) => {
+      if (url.includes('/tipos-movimiento')) {
+        return Promise.resolve({ data: [{ id: 7, nombre: 'Ahorro / bolsillo' }] });
+      }
+
+      return Promise.resolve({ data: [{ id: 4, nombre: 'Gasto' }] });
+    });
+
+    render(<GastosForm />);
+    fireEvent.click(screen.getByLabelText(/gasto desde bolsillo/i));
+    fireEvent.change(screen.getByPlaceholderText(/descripción/i), {
+      target: { value: 'pago prueba' },
+    });
+    fireEvent.change(screen.getByPlaceholderText(/valor/i), { target: { value: '60000' } });
+    const dateInputs = document.querySelectorAll('input[type="date"]');
+    fireEvent.change(dateInputs[0], { target: { value: '2026-06-29' } });
+    expect(await screen.findByText('Gasto')).toBeInTheDocument();
+    fireEvent.change(screen.getByTestId('filtro-categorias'), { target: { value: '4' } });
+    expect(screen.getByTestId('filtro-categorias').value).toBe('4');
+    fireEvent.click(screen.getByText(/guardar/i));
+
+    expect(
+      await screen.findByText(/no se encontró la categoría retiro bolsillo objetivo25y26/i)
+    ).toBeInTheDocument();
+    expect(axios.post).not.toHaveBeenCalled();
   });
 
   it('envía el formulario correctamente (edición)', async () => {

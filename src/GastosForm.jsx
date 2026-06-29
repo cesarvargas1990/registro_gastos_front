@@ -10,6 +10,14 @@ const panelClass =
 const inputClass =
   'h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-teal-400 focus:ring-4 focus:ring-teal-100';
 
+const CATEGORIA_RETIRO_BOLSILLO = 'Retiro Bolsillo Objetivo25y26';
+const TIPO_AHORRO_BOLSILLO = 'Ahorro / bolsillo';
+
+const normalizarNombre = (value = '') => value.trim().toLowerCase();
+
+const findByNombre = (items, nombre) =>
+  items.find((item) => normalizarNombre(item.nombre) === normalizarNombre(nombre));
+
 export default function GastosForm({ modoModal = false, gastoInicial, onClose, onSuccess }) {
   const [descripcion, setDescripcion] = useState('');
   const [valor, setValor] = useState('');
@@ -17,9 +25,13 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
   const [categoriaId, setCategoriaId] = useState('');
   const [tipoMovimientoId, setTipoMovimientoId] = useState('');
   const [tiposMovimiento, setTiposMovimiento] = useState([]);
+  const [categorias, setCategorias] = useState([]);
+  const [registrarRetiroBolsillo, setRegistrarRetiroBolsillo] = useState(false);
+  const [tipoRetiroBolsilloId, setTipoRetiroBolsilloId] = useState('');
   const [fechaFinalPago, setFechaFinalPago] = useState('');
   const [error, setError] = useState('');
   const [exito, setExito] = useState('');
+  const [guardando, setGuardando] = useState(false);
 
   const limpiarFormulario = () => {
     setDescripcion('');
@@ -27,6 +39,8 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
     setFecha('');
     setCategoriaId('');
     setTipoMovimientoId('');
+    setRegistrarRetiroBolsillo(false);
+    setTipoRetiroBolsilloId('');
     setFechaFinalPago('');
   };
 
@@ -35,6 +49,11 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
       .get(`${API_BASE}/tipos-movimiento`)
       .then((response) => setTiposMovimiento(response.data || []))
       .catch((err) => console.error('Error cargando tipos de movimiento:', err));
+
+    axios
+      .get(`${API_BASE}/categorias`)
+      .then((response) => setCategorias(response.data || []))
+      .catch((err) => console.error('Error cargando categorías:', err));
   }, []);
 
   useEffect(() => {
@@ -48,6 +67,30 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
     }
   }, [gastoInicial]);
 
+  useEffect(() => {
+    if (!registrarRetiroBolsillo || tipoRetiroBolsilloId) return;
+
+    const tipoAhorroBolsillo = findByNombre(tiposMovimiento, TIPO_AHORRO_BOLSILLO);
+    if (tipoAhorroBolsillo) {
+      setTipoRetiroBolsilloId(tipoAhorroBolsillo.id.toString());
+    }
+  }, [registrarRetiroBolsillo, tipoRetiroBolsilloId, tiposMovimiento]);
+
+  const crearPayloadMovimiento = ({
+    categoriaMovimientoId,
+    tipoMovimientoMovimientoId,
+    fechaFinalPagoMovimiento = fechaFinalPago || null,
+  }) => ({
+    descripcion,
+    valor,
+    fecha,
+    categoria_id: parseInt(categoriaMovimientoId, 10),
+    tipo_movimiento_id: tipoMovimientoMovimientoId
+      ? parseInt(tipoMovimientoMovimientoId, 10)
+      : null,
+    fecha_final_pago: fechaFinalPagoMovimiento,
+  });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -57,27 +100,52 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
       return;
     }
 
-    try {
-      if (gastoInicial) {
-        await axios.put(`${API_BASE}/movimientos/${gastoInicial.id}`, {
-          descripcion,
-          valor,
-          fecha,
-          categoria_id: parseInt(categoriaId),
-          tipo_movimiento_id: tipoMovimientoId ? parseInt(tipoMovimientoId) : null,
-          fecha_final_pago: fechaFinalPago || null,
-        });
-      } else {
-        await axios.post(`${API_BASE}/movimientos`, {
-          descripcion,
-          valor,
-          fecha,
-          categoria_id: parseInt(categoriaId),
-          tipo_movimiento_id: tipoMovimientoId ? parseInt(tipoMovimientoId) : null,
-          fecha_final_pago: fechaFinalPago || null,
-        });
+    if (registrarRetiroBolsillo) {
+      const categoriaRetiroBolsillo = findByNombre(categorias, CATEGORIA_RETIRO_BOLSILLO);
 
-        setExito('¡Gasto registrado exitosamente!');
+      if (!categoriaRetiroBolsillo) {
+        setError(`No se encontró la categoría ${CATEGORIA_RETIRO_BOLSILLO}.`);
+        return;
+      }
+    }
+
+    try {
+      setGuardando(true);
+      if (gastoInicial) {
+        await axios.put(
+          `${API_BASE}/movimientos/${gastoInicial.id}`,
+          crearPayloadMovimiento({
+            categoriaMovimientoId: categoriaId,
+            tipoMovimientoMovimientoId: tipoMovimientoId,
+          })
+        );
+      } else {
+        if (registrarRetiroBolsillo) {
+          const categoriaRetiroBolsillo = findByNombre(categorias, CATEGORIA_RETIRO_BOLSILLO);
+
+          await axios.post(
+            `${API_BASE}/movimientos`,
+            crearPayloadMovimiento({
+              categoriaMovimientoId: categoriaRetiroBolsillo.id,
+              tipoMovimientoMovimientoId: tipoRetiroBolsilloId,
+              fechaFinalPagoMovimiento: null,
+            })
+          );
+        }
+
+        await axios.post(
+          `${API_BASE}/movimientos`,
+          crearPayloadMovimiento({
+            categoriaMovimientoId: categoriaId,
+            tipoMovimientoMovimientoId: tipoMovimientoId,
+          })
+        );
+
+        setExito(
+          registrarRetiroBolsillo
+            ? '¡Retiro y gasto registrados exitosamente!'
+            : '¡Gasto registrado exitosamente!'
+        );
         limpiarFormulario();
       }
 
@@ -86,6 +154,8 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
     } catch (err) {
       console.error(err);
       setError('Error al guardar el gasto');
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -119,6 +189,17 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
           </div>
         )}
         <form onSubmit={handleSubmit} className="grid gap-4">
+          {!gastoInicial && (
+            <label className="flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-700">
+              <input
+                type="checkbox"
+                className="h-4 w-4 accent-teal-500"
+                checked={registrarRetiroBolsillo}
+                onChange={(e) => setRegistrarRetiroBolsillo(e.target.checked)}
+              />
+              Gasto desde bolsillo
+            </label>
+          )}
           <input
             type="text"
             placeholder="Descripción *"
@@ -139,7 +220,27 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
             value={fecha}
             onChange={(e) => setFecha(e.target.value)}
           />
-          <FiltroCategorias value={categoriaId} onChange={setCategoriaId} className="w-full" />
+          {registrarRetiroBolsillo && !gastoInicial && (
+            <select
+              aria-label="Tipo retiro bolsillo"
+              className={`${inputClass} w-full`}
+              value={tipoRetiroBolsilloId}
+              onChange={(e) => setTipoRetiroBolsilloId(e.target.value)}
+            >
+              <option value="">Tipo retiro bolsillo</option>
+              {tiposMovimiento.map((tipo) => (
+                <option key={tipo.id} value={tipo.id}>
+                  {tipo.nombre}
+                </option>
+              ))}
+            </select>
+          )}
+          <FiltroCategorias
+            value={categoriaId}
+            onChange={setCategoriaId}
+            className="w-full"
+            categorias={categorias}
+          />
           <select
             className={`${inputClass} w-full`}
             value={tipoMovimientoId}
@@ -169,9 +270,10 @@ export default function GastosForm({ modoModal = false, gastoInicial, onClose, o
             </button>
             <button
               type="submit"
+              disabled={guardando}
               className="h-11 rounded-xl bg-teal-500 px-5 text-sm font-bold text-white shadow-lg shadow-teal-100 transition hover:bg-teal-600"
             >
-              Guardar
+              {guardando ? 'Guardando...' : 'Guardar'}
             </button>
           </div>
         </form>

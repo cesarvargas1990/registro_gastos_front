@@ -1,14 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { getJson } from './utils/api';
 
-function FiltroCategorias({ value, onChange, className = '' }) {
-  const [categorias, setCategorias] = useState([]);
+function FiltroCategorias({ value, onChange, className = '', categorias: categoriasProp }) {
+  const [categoriasLocales, setCategoriasLocales] = useState([]);
 
   useEffect(() => {
+    if (categoriasProp) return;
+
     getJson('/categorias')
-      .then((data) => setCategorias(data))
+      .then((data) => setCategoriasLocales(data))
       .catch((error) => console.error('Error cargando categorías:', error));
-  }, []);
+  }, [categoriasProp]);
+
+  const categorias = categoriasProp || categoriasLocales;
 
   return (
     <select
