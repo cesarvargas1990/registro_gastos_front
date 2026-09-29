@@ -192,7 +192,7 @@ export default function GastosFijosTable() {
                 <th className="border-b border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-wide">
                   id
                 </th>
-                <th className="border-b border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-wide">
+                <th className="sticky left-0 z-20 min-w-72 border-b border-slate-200 bg-slate-50 px-4 py-3 text-xs font-black uppercase tracking-wide shadow-[4px_0_6px_-5px_rgba(15,23,42,0.35)]">
                   descripcion
                 </th>
                 <th className="border-b border-slate-200 px-4 py-3 text-right text-xs font-black uppercase tracking-wide">
@@ -210,11 +210,11 @@ export default function GastosFijosTable() {
               {gastos.map((gasto) => {
                 const enEdicion = editId === gasto.id;
                 return (
-                  <tr key={gasto.id} className="transition hover:bg-slate-50/80">
+                  <tr key={gasto.id} className="group transition hover:bg-slate-50/80">
                     <td className="whitespace-nowrap px-4 py-3 font-semibold text-slate-500">
                       {gasto.id}
                     </td>
-                    <td className="min-w-72 px-4 py-3 font-semibold text-slate-900">
+                    <td className="sticky left-0 z-10 min-w-72 bg-white px-4 py-3 font-semibold text-slate-900 shadow-[4px_0_6px_-5px_rgba(15,23,42,0.35)] group-hover:bg-slate-50">
                       {enEdicion ? (
                         <input
                           type="text"
