@@ -29,7 +29,7 @@ export default function GastosFijosSection({
         <table className="min-w-full text-left text-xs text-[#172756]">
           <thead className="bg-indigo-50/70 text-[11px] font-black text-[#27356d]">
             <tr>
-              <th className="sticky left-0 z-20 min-w-52 border border-indigo-100 bg-indigo-50/70 px-3 py-2 shadow-[4px_0_6px_-5px_rgba(15,23,42,0.45)]">
+              <th className="sticky left-0 z-20 min-w-52 border border-indigo-100 bg-indigo-50 px-3 py-2 shadow-[4px_0_6px_-5px_rgba(15,23,42,0.45)]">
                 Descripción
               </th>
               <th className="border border-indigo-100 px-3 py-2">Valor</th>
@@ -50,7 +50,7 @@ export default function GastosFijosSection({
               <tr key={i} className="odd:bg-white even:bg-slate-50/65">
                 <td
                   className={`sticky left-0 z-10 min-w-52 whitespace-nowrap border border-indigo-50 px-3 py-2 font-semibold shadow-[4px_0_6px_-5px_rgba(15,23,42,0.45)] ${
-                    i % 2 === 0 ? 'bg-white' : 'bg-slate-50/65'
+                    i % 2 === 0 ? 'bg-white' : 'bg-slate-50'
                   }`}
                 >
                   {item.Descripción}
@@ -78,7 +78,7 @@ export default function GastosFijosSection({
           </tbody>
           <tfoot>
             <tr className="bg-indigo-50/80 text-xs font-black text-[#172756]">
-              <td className="sticky left-0 z-10 border border-indigo-100 bg-indigo-50/80 px-3 py-2 shadow-[4px_0_6px_-5px_rgba(15,23,42,0.45)]">
+              <td className="sticky left-0 z-10 border border-indigo-100 bg-indigo-50 px-3 py-2 shadow-[4px_0_6px_-5px_rgba(15,23,42,0.45)]">
                 Total por mes
               </td>
               <td className="border border-indigo-100 px-3 py-2" />
