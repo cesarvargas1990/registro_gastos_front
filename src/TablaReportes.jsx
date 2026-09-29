@@ -291,7 +291,13 @@ export default function TablaReportes() {
                   <th
                     key={col.field}
                     onClick={() => handleSort(col.field)}
-                    className="cursor-pointer whitespace-nowrap border-b border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-wide"
+                    className={`cursor-pointer whitespace-nowrap border-b border-slate-200 px-4 py-3 text-xs font-black uppercase tracking-wide ${
+                      col.field === 'id'
+                        ? 'w-20 min-w-20'
+                        : col.field === 'descripcion'
+                          ? 'sticky left-20 z-20 min-w-60 bg-slate-50 shadow-[4px_0_6px_-5px_rgba(15,23,42,0.35)]'
+                          : ''
+                    }`}
                   >
                     {col.label}{' '}
                     {sortField === col.field ? (sortDirection === 'asc' ? '↑' : '↓') : ''}
@@ -304,11 +310,11 @@ export default function TablaReportes() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {paginatedData.map((mov) => (
-                <tr key={mov.id} className="transition hover:bg-slate-50/80">
-                  <td className="whitespace-nowrap px-4 py-3 font-semibold text-slate-500">
+                <tr key={mov.id} className="group transition hover:bg-slate-50/80">
+                  <td className="w-20 min-w-20 whitespace-nowrap px-4 py-3 font-semibold text-slate-500">
                     {mov.id}
                   </td>
-                  <td className="min-w-60 px-4 py-3 font-semibold text-slate-900">
+                  <td className="sticky left-20 z-10 min-w-60 bg-white px-4 py-3 font-semibold text-slate-900 shadow-[4px_0_6px_-5px_rgba(15,23,42,0.35)] group-hover:bg-slate-50">
                     {mov.descripcion}
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-right font-bold text-[#061640]">{`$${parseFloat(mov.valor).toLocaleString('es-CO')}`}</td>
