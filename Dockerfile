@@ -3,6 +3,9 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+ARG REACT_APP_API_BASE=//localhost:5000
+ENV REACT_APP_API_BASE=$REACT_APP_API_BASE
+
 COPY package*.json ./
 RUN npm install --production
 

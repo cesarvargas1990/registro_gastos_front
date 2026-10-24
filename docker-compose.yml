@@ -1,7 +1,9 @@
-version: '3.8'
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      args:
+        REACT_APP_API_BASE: //localhost:5000
     ports:
       - '5001:5001'
     environment:
