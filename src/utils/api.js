@@ -4,20 +4,24 @@ const LOCAL_API_BASE = '//localhost:5000';
 const REMOTE_API_BASE = '//147.93.1.252:5000';
 
 const resolveApiBase = () => {
-  if (process.env.REACT_APP_API_BASE) {
-    return process.env.REACT_APP_API_BASE;
-  }
-
   if (typeof window !== 'undefined') {
     const { hostname } = window.location;
 
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return LOCAL_API_BASE;
+      return process.env.REACT_APP_API_BASE || LOCAL_API_BASE;
     }
-    return `//${hostname}:5000`;
+
+    // Never send a browser running on the deployed host to its own localhost.
+    // CRA embeds REACT_APP_API_BASE at build time, so the old localhost value
+    // must yield to the host serving the frontend in remote environments.
+    if (!process.env.REACT_APP_API_BASE || process.env.REACT_APP_API_BASE === LOCAL_API_BASE) {
+      return `//${hostname}:5000`;
+    }
+
+    return process.env.REACT_APP_API_BASE;
   }
 
-  return REMOTE_API_BASE;
+  return process.env.REACT_APP_API_BASE || REMOTE_API_BASE;
 };
 
 export const API_BASE = resolveApiBase();
