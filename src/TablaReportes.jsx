@@ -64,6 +64,19 @@ const getMovimientoIdValido = (value) => {
   return Number.isSafeInteger(id) && id > 0 ? id : null;
 };
 
+const getCurrentMonthDateRange = () => {
+  const now = new Date();
+  const formatLocalDate = (date) =>
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
+      date.getDate()
+    ).padStart(2, '0')}`;
+
+  return {
+    start: formatLocalDate(new Date(now.getFullYear(), now.getMonth(), 1)),
+    end: formatLocalDate(new Date(now.getFullYear(), now.getMonth() + 1, 0)),
+  };
+};
+
 export default function TablaReportes() {
   const [movimientos, setMovimientos] = useState([]);
   const [searchDesc, setSearchDesc] = useState('');
@@ -80,8 +93,9 @@ export default function TablaReportes() {
   const [errorReporte, setErrorReporte] = useState('');
   const [reloadVersion, setReloadVersion] = useState(0);
   const legacyMovimientosRef = useRef(null);
-  const [fechaInicio, setFechaInicio] = useState('');
-  const [fechaFin, setFechaFin] = useState('');
+  const [rangoFechaInicial] = useState(getCurrentMonthDateRange);
+  const [fechaInicio, setFechaInicio] = useState(rangoFechaInicial.start);
+  const [fechaFin, setFechaFin] = useState(rangoFechaInicial.end);
   const [mostrarModal, setMostrarModal] = useState(false);
   const [movAEliminar, setMovAEliminar] = useState(null);
   const [movAEditar, setMovAEditar] = useState(null);
@@ -260,11 +274,12 @@ export default function TablaReportes() {
   };
 
   const limpiarFiltros = () => {
+    const rangoActual = getCurrentMonthDateRange();
     setSearchDesc('');
     setSearchCat('');
     setSearchTipoMovimiento('');
-    setFechaInicio('');
-    setFechaFin('');
+    setFechaInicio(rangoActual.start);
+    setFechaFin(rangoActual.end);
     setItemsPerPage(20);
     setCurrentPage(1);
   };
