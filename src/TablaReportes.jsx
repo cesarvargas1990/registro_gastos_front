@@ -282,92 +282,9 @@ export default function TablaReportes() {
         </button>
       </div>
 
-      <div className="md:hidden">
-        <div className="space-y-3">
-          {paginatedData.map((mov) => (
-            <article
-              key={mov.id}
-              className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-200/70"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="break-words text-base font-bold text-slate-900">
-                    {mov.descripcion}
-                  </p>
-                  <p className="mt-1 text-xs font-medium text-slate-400">Movimiento #{mov.id}</p>
-                </div>
-                <div className="flex shrink-0 gap-2">
-                  <button
-                    onClick={() => setMovAEditar(mov)}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-lg text-blue-600"
-                    title="Editar"
-                    aria-label={`Editar ${mov.descripcion}`}
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => confirmarEliminar(mov)}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600"
-                    title="Eliminar"
-                    aria-label={`Eliminar ${mov.descripcion}`}
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
-              </div>
-              <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-slate-100 pt-3 text-sm">
-                <div>
-                  <dt className="text-xs font-semibold text-slate-400">Valor</dt>
-                  <dd className="mt-0.5 font-bold text-[#061640]">
-                    ${parseFloat(mov.valor).toLocaleString('es-CO')}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold text-slate-400">Fecha</dt>
-                  <dd className="mt-0.5 font-medium text-slate-700">
-                    {mov.fecha ? new Date(mov.fecha).toLocaleDateString('es-ES') : '—'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold text-slate-400">Categoría</dt>
-                  <dd className="mt-0.5 break-words font-medium text-slate-700">
-                    {mov.nombre_categoria || 'Sin categoría'}
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-xs font-semibold text-slate-400">Tipo</dt>
-                  <dd className="mt-0.5 break-words font-medium text-slate-700">
-                    {mov.nombre_tipo_movimiento || 'Sin clasificar'}
-                  </dd>
-                </div>
-                {mov.fecha_final_pago && (
-                  <div className="col-span-2">
-                    <dt className="text-xs font-semibold text-slate-400">Fecha final de pago</dt>
-                    <dd className="mt-0.5 font-medium text-slate-700">
-                      {new Date(mov.fecha_final_pago).toLocaleDateString('es-ES')}
-                    </dd>
-                  </div>
-                )}
-              </dl>
-            </article>
-          ))}
-          {paginatedData.length === 0 && (
-            <div className="rounded-2xl border border-slate-200 bg-white px-4 py-10 text-center font-semibold text-slate-400">
-              No hay movimientos para mostrar.
-            </div>
-          )}
-          {total !== null && (
-            <div className="flex items-center justify-between rounded-2xl bg-[#061640] px-4 py-3 font-bold text-white">
-              <span>Total</span>
-              <span>${total.toLocaleString('es-CO')}</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="hidden overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/70 md:block">
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto text-left text-sm">
+      <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm shadow-slate-200/70">
+        <div className="movement-table-scroll overflow-x-auto">
+          <table className="responsive-movements min-w-full table-auto text-left text-sm">
             <thead className="bg-slate-50 text-slate-600">
               <tr>
                 {columns.map((col) => (
@@ -394,26 +311,37 @@ export default function TablaReportes() {
             <tbody className="divide-y divide-slate-100 text-slate-700">
               {paginatedData.map((mov) => (
                 <tr key={mov.id} className="group transition hover:bg-slate-50/80">
-                  <td className="w-20 min-w-20 whitespace-nowrap px-4 py-3 font-semibold text-slate-500">
+                  <td
+                    data-label="ID"
+                    className="w-20 min-w-20 whitespace-nowrap px-4 py-3 font-semibold text-slate-500"
+                  >
                     {mov.id}
                   </td>
-                  <td className="sticky left-20 z-10 min-w-60 bg-white px-4 py-3 font-semibold text-slate-900 shadow-[4px_0_6px_-5px_rgba(15,23,42,0.35)] group-hover:bg-slate-50">
+                  <td
+                    data-label="Descripción"
+                    className="sticky left-20 z-10 min-w-60 bg-white px-4 py-3 font-semibold text-slate-900 shadow-[4px_0_6px_-5px_rgba(15,23,42,0.35)] group-hover:bg-slate-50"
+                  >
                     {mov.descripcion}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-right font-bold text-[#061640]">{`$${parseFloat(mov.valor).toLocaleString('es-CO')}`}</td>
-                  <td className="whitespace-nowrap px-4 py-3">
+                  <td
+                    data-label="Valor"
+                    className="whitespace-nowrap px-4 py-3 text-right font-bold text-[#061640]"
+                  >{`$${parseFloat(mov.valor).toLocaleString('es-CO')}`}</td>
+                  <td data-label="Fecha" className="whitespace-nowrap px-4 py-3">
                     {mov.fecha ? new Date(mov.fecha).toLocaleDateString('es-ES') : ''}
                   </td>
-                  <td className="min-w-48 px-4 py-3">{mov.nombre_categoria}</td>
-                  <td className="min-w-52 px-4 py-3">
+                  <td data-label="Categoría" className="min-w-48 px-4 py-3">
+                    {mov.nombre_categoria}
+                  </td>
+                  <td data-label="Tipo de movimiento" className="min-w-52 px-4 py-3">
                     {mov.nombre_tipo_movimiento || 'Sin clasificar'}
                   </td>
-                  <td className="whitespace-nowrap px-4 py-3">
+                  <td data-label="Fecha final de pago" className="whitespace-nowrap px-4 py-3">
                     {mov.fecha_final_pago
                       ? new Date(mov.fecha_final_pago).toLocaleDateString('es-ES')
                       : ''}
                   </td>
-                  <td className="flex gap-2 px-4 py-3">
+                  <td data-label="Acciones" className="flex gap-2 px-4 py-3">
                     <button
                       onClick={() => setMovAEditar(mov)}
                       className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-50 text-blue-600 transition hover:bg-blue-100"
@@ -432,7 +360,7 @@ export default function TablaReportes() {
                 </tr>
               ))}
               {total !== null && (
-                <tr className="bg-[#061640] font-bold text-white">
+                <tr className="movement-total-row bg-[#061640] font-bold text-white">
                   <td className="px-4 py-3" colSpan={2}>
                     Total
                   </td>
