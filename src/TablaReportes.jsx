@@ -35,29 +35,32 @@ const getTipoMovimientoKey = (item) => {
   return item?.nombre_tipo_movimiento ? `nombre:${item.nombre_tipo_movimiento}` : '';
 };
 
-const getLegacyFilteredMovements = (movimientos, filters) =>
-  movimientos
-    .filter((item) => {
-      const matchesDescription = item.descripcion?.toLowerCase().includes(filters.searchDesc);
-      const matchesCategory =
-        !filters.searchCat || item.categoria_id?.toString() === filters.searchCat;
-      const matchesType =
-        !filters.searchTipoMovimiento ||
-        getTipoMovimientoKey(item) === filters.searchTipoMovimiento;
-      const matchesStart =
-        !filters.fechaInicio || new Date(item.fecha) >= new Date(filters.fechaInicio);
-      const matchesEnd = !filters.fechaFin || new Date(item.fecha) <= new Date(filters.fechaFin);
-      return matchesDescription && matchesCategory && matchesType && matchesStart && matchesEnd;
-    })
-    .sort((a, b) => {
-      const aValue = getSortValue(a, filters.sortField);
-      const bValue = getSortValue(b, filters.sortField);
-      const direction = filters.sortDirection === 'asc' ? 1 : -1;
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return aValue.localeCompare(bValue, 'es-CO', { numeric: true }) * direction;
-      }
-      return (aValue - bValue) * direction;
-    });
+const getLegacyFilteredMovements = (movimientos, filters) => {
+  const filtered = movimientos.filter((item) => {
+    const matchesDescription = item.descripcion?.toLowerCase().includes(filters.searchDesc);
+    const matchesCategory =
+      !filters.searchCat || item.categoria_id?.toString() === filters.searchCat;
+    const matchesType =
+      !filters.searchTipoMovimiento || getTipoMovimientoKey(item) === filters.searchTipoMovimiento;
+    const matchesStart =
+      !filters.fechaInicio || new Date(item.fecha) >= new Date(filters.fechaInicio);
+    const matchesEnd = !filters.fechaFin || new Date(item.fecha) <= new Date(filters.fechaFin);
+    return matchesDescription && matchesCategory && matchesType && matchesStart && matchesEnd;
+  });
+
+  // The legacy endpoint already returns rows by date descending.
+  if (filters.sortField === 'fecha' && filters.sortDirection === 'desc') return filtered;
+
+  return filtered.sort((a, b) => {
+    const aValue = getSortValue(a, filters.sortField);
+    const bValue = getSortValue(b, filters.sortField);
+    const direction = filters.sortDirection === 'asc' ? 1 : -1;
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return aValue.localeCompare(bValue, 'es-CO', { numeric: true }) * direction;
+    }
+    return (aValue - bValue) * direction;
+  });
+};
 
 const getMovimientoIdValido = (value) => {
   const id = Number(value);
@@ -83,8 +86,8 @@ export default function TablaReportes() {
   const [searchCat, setSearchCat] = useState('');
   const [searchTipoMovimiento, setSearchTipoMovimiento] = useState('');
   const [tiposMovimiento, setTiposMovimiento] = useState([]);
-  const [sortField, setSortField] = useState('id');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortField, setSortField] = useState('fecha');
+  const [sortDirection, setSortDirection] = useState('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
   const [totalRecords, setTotalRecords] = useState(0);
