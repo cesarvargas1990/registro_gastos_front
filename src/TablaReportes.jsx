@@ -9,6 +9,24 @@ const pageClass = 'min-h-screen px-4 pb-8 pt-20 text-slate-950 md:ml-60 md:px-8 
 const inputClass =
   'h-12 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-teal-400 focus:ring-4 focus:ring-teal-100';
 
+const numericFields = new Set(['id', 'valor']);
+const dateFields = new Set(['fecha', 'fecha_final_pago']);
+
+const parseSortNumber = (value) => {
+  if (value === null || value === undefined || value === '') return 0;
+  if (typeof value === 'number') return value;
+
+  const number = Number(String(value).replace(/[^\d.-]/g, ''));
+  return Number.isFinite(number) ? number : 0;
+};
+
+const getSortValue = (item, field) => {
+  const value = item[field];
+  if (numericFields.has(field)) return parseSortNumber(value);
+  if (dateFields.has(field)) return new Date(value || 0).getTime();
+  return String(value ?? '').toLocaleLowerCase('es-CO');
+};
+
 const getTipoMovimientoKey = (item) => {
   if (item?.tipo_movimiento_id !== null && item?.tipo_movimiento_id !== undefined) {
     return String(item.tipo_movimiento_id);
@@ -74,6 +92,36 @@ export default function TablaReportes() {
       .get(`${API_BASE}/movimientos`, { params })
       .then((response) => {
         if (!vigente) return;
+        if (Array.isArray(response.data)) {
+          const filtered = response.data
+            .filter((item) => {
+              const matchesDescription = item.descripcion?.toLowerCase().includes(searchDesc);
+              const matchesCategory = !searchCat || item.categoria_id?.toString() === searchCat;
+              const matchesType =
+                !searchTipoMovimiento || getTipoMovimientoKey(item) === searchTipoMovimiento;
+              const matchesStart = !fechaInicio || new Date(item.fecha) >= new Date(fechaInicio);
+              const matchesEnd = !fechaFin || new Date(item.fecha) <= new Date(fechaFin);
+              return (
+                matchesDescription && matchesCategory && matchesType && matchesStart && matchesEnd
+              );
+            })
+            .sort((a, b) => {
+              const aValue = getSortValue(a, sortField);
+              const bValue = getSortValue(b, sortField);
+              const direction = sortDirection === 'asc' ? 1 : -1;
+              if (typeof aValue === 'string' && typeof bValue === 'string') {
+                return aValue.localeCompare(bValue, 'es-CO', { numeric: true }) * direction;
+              }
+              return (aValue - bValue) * direction;
+            });
+          const start = (currentPage - 1) * itemsPerPage;
+          setMovimientos(filtered.slice(start, start + itemsPerPage));
+          setTotalRecords(filtered.length);
+          setTotalPages(Math.ceil(filtered.length / itemsPerPage));
+          setTotal(filtered.reduce((sum, item) => sum + (parseFloat(item.valor) || 0), 0));
+          return;
+        }
+
         const data = response.data || {};
         setMovimientos(data.items || []);
         setTotalRecords(Number(data.total) || 0);
