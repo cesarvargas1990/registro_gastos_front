@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import FiltroCategorias from './FiltroCategorias';
 import axios from 'axios';
 import { FaEdit, FaTrash } from 'react-icons/fa';
@@ -35,6 +35,30 @@ const getTipoMovimientoKey = (item) => {
   return item?.nombre_tipo_movimiento ? `nombre:${item.nombre_tipo_movimiento}` : '';
 };
 
+const getLegacyFilteredMovements = (movimientos, filters) =>
+  movimientos
+    .filter((item) => {
+      const matchesDescription = item.descripcion?.toLowerCase().includes(filters.searchDesc);
+      const matchesCategory =
+        !filters.searchCat || item.categoria_id?.toString() === filters.searchCat;
+      const matchesType =
+        !filters.searchTipoMovimiento ||
+        getTipoMovimientoKey(item) === filters.searchTipoMovimiento;
+      const matchesStart =
+        !filters.fechaInicio || new Date(item.fecha) >= new Date(filters.fechaInicio);
+      const matchesEnd = !filters.fechaFin || new Date(item.fecha) <= new Date(filters.fechaFin);
+      return matchesDescription && matchesCategory && matchesType && matchesStart && matchesEnd;
+    })
+    .sort((a, b) => {
+      const aValue = getSortValue(a, filters.sortField);
+      const bValue = getSortValue(b, filters.sortField);
+      const direction = filters.sortDirection === 'asc' ? 1 : -1;
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return aValue.localeCompare(bValue, 'es-CO', { numeric: true }) * direction;
+      }
+      return (aValue - bValue) * direction;
+    });
+
 const getMovimientoIdValido = (value) => {
   const id = Number(value);
   return Number.isSafeInteger(id) && id > 0 ? id : null;
@@ -55,6 +79,7 @@ export default function TablaReportes() {
   const [loading, setLoading] = useState(false);
   const [errorReporte, setErrorReporte] = useState('');
   const [reloadVersion, setReloadVersion] = useState(0);
+  const legacyMovimientosRef = useRef(null);
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
   const [mostrarModal, setMostrarModal] = useState(false);
@@ -93,27 +118,18 @@ export default function TablaReportes() {
       .then((response) => {
         if (!vigente) return;
         if (Array.isArray(response.data)) {
-          const filtered = response.data
-            .filter((item) => {
-              const matchesDescription = item.descripcion?.toLowerCase().includes(searchDesc);
-              const matchesCategory = !searchCat || item.categoria_id?.toString() === searchCat;
-              const matchesType =
-                !searchTipoMovimiento || getTipoMovimientoKey(item) === searchTipoMovimiento;
-              const matchesStart = !fechaInicio || new Date(item.fecha) >= new Date(fechaInicio);
-              const matchesEnd = !fechaFin || new Date(item.fecha) <= new Date(fechaFin);
-              return (
-                matchesDescription && matchesCategory && matchesType && matchesStart && matchesEnd
-              );
-            })
-            .sort((a, b) => {
-              const aValue = getSortValue(a, sortField);
-              const bValue = getSortValue(b, sortField);
-              const direction = sortDirection === 'asc' ? 1 : -1;
-              if (typeof aValue === 'string' && typeof bValue === 'string') {
-                return aValue.localeCompare(bValue, 'es-CO', { numeric: true }) * direction;
-              }
-              return (aValue - bValue) * direction;
-            });
+          if (legacyMovimientosRef.current === null) {
+            legacyMovimientosRef.current = response.data;
+          }
+          const filtered = getLegacyFilteredMovements(legacyMovimientosRef.current, {
+            searchDesc,
+            searchCat,
+            searchTipoMovimiento,
+            fechaInicio,
+            fechaFin,
+            sortField,
+            sortDirection,
+          });
           const start = (currentPage - 1) * itemsPerPage;
           setMovimientos(filtered.slice(start, start + itemsPerPage));
           setTotalRecords(filtered.length);
@@ -201,6 +217,7 @@ export default function TablaReportes() {
 
     try {
       await axios.delete(`${API_BASE}/movimientos/${movimientoId}`);
+      legacyMovimientosRef.current = null;
       setReloadVersion((version) => version + 1);
       setMostrarModal(false);
       setMovAEliminar(null);
@@ -221,12 +238,24 @@ export default function TablaReportes() {
   }, [currentPage, totalPages]);
 
   const handleSort = (col) => {
-    if (sortField === col) {
-      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
-    } else {
-      setSortField(col);
-      setSortDirection('asc');
+    const nextDirection = sortField === col ? (sortDirection === 'asc' ? 'desc' : 'asc') : 'asc';
+    if (legacyMovimientosRef.current !== null) {
+      const filtered = getLegacyFilteredMovements(legacyMovimientosRef.current, {
+        searchDesc,
+        searchCat,
+        searchTipoMovimiento,
+        fechaInicio,
+        fechaFin,
+        sortField: col,
+        sortDirection: nextDirection,
+      });
+      setMovimientos(filtered.slice(0, itemsPerPage));
+      setTotalRecords(filtered.length);
+      setTotalPages(Math.ceil(filtered.length / itemsPerPage));
+      setTotal(filtered.reduce((sum, item) => sum + (parseFloat(item.valor) || 0), 0));
     }
+    setSortField(col);
+    setSortDirection(nextDirection);
     setCurrentPage(1);
   };
 
@@ -521,6 +550,7 @@ export default function TablaReportes() {
               gastoInicial={movAEditar}
               onClose={() => setMovAEditar(null)}
               onSuccess={() => {
+                legacyMovimientosRef.current = null;
                 setReloadVersion((version) => version + 1);
                 setMovAEditar(null);
               }}
