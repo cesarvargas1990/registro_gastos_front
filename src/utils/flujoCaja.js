@@ -30,7 +30,6 @@ export const totalGastosFijos = (gastosFijos = []) =>
 export const calcularIndicadores = ({
   cuentaBolsillo,
   meta,
-  estPrestServ,
   totalEntra,
   totalGastos,
   totalProyeccion = 0,
@@ -38,8 +37,7 @@ export const calcularIndicadores = ({
   const cuenta = num(cuentaBolsillo);
   const m = num(meta);
   const faltaMetaTotal = m - cuenta;
-  const posibleGranTotal =
-    cuenta + num(totalEntra) - num(totalGastos) - num(totalProyeccion) + num(estPrestServ);
+  const posibleGranTotal = cuenta + num(totalEntra) - num(totalGastos) - num(totalProyeccion);
   const difMeta = posibleGranTotal - m;
   return {
     falta_meta_total: faltaMetaTotal,

@@ -32,7 +32,6 @@ const moneyClass = (v) => (v < 0 ? 'text-red-600' : 'text-[#061640]');
 const PARAMS = [
   { key: 'cuenta_bolsillo', label: 'Actual cuenta bolsillo' },
   { key: 'meta', label: 'Meta' },
-  { key: 'est_prest_serv', label: 'Est cont prest serv' },
 ];
 
 const CALCULADOS = [
@@ -188,7 +187,6 @@ export default function FlujoCaja() {
       calcularIndicadores({
         cuentaBolsillo: parametros.cuenta_bolsillo,
         meta: parametros.meta,
-        estPrestServ: parametros.est_prest_serv,
         totalEntra,
         totalGastos,
         totalProyeccion,
@@ -233,7 +231,7 @@ export default function FlujoCaja() {
     parametros: {
       cuenta_bolsillo: toNum(parametros.cuenta_bolsillo),
       meta: toNum(parametros.meta),
-      est_prest_serv: toNum(parametros.est_prest_serv),
+      est_prest_serv: 0,
     },
     gastos_fijos: gastosFijos.flatMap((gf) =>
       (gf.meses || []).map((m) => ({
@@ -305,7 +303,7 @@ export default function FlujoCaja() {
 
       <section className={cardClass}>
         <h3 className="mb-4 text-lg font-black text-[#061640]">Indicadores</h3>
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           {PARAMS.map((p) => (
             <label
               key={p.key}
@@ -322,7 +320,7 @@ export default function FlujoCaja() {
             </label>
           ))}
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
           {CALCULADOS.map((c) => {
             const Icon = c.icon;
             return (

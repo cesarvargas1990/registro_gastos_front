@@ -13,7 +13,7 @@ jest.mock('axios', () => ({
 const data = {
   entradas: [{ id: 1, concepto: 'tengo efectivo', valor: 1000, orden: 1 }],
   proyeccion_gastos: [{ id: 7, concepto: 'mercado', valor: 300, orden: 1 }],
-  parametros: { cuenta_bolsillo: 5000, meta: 10000, est_prest_serv: 200 },
+  parametros: { cuenta_bolsillo: 5000, meta: 10000, est_prest_serv: 0 },
   meses: [
     { anio: 2026, mes: 11, nombre: 'Noviembre' },
     { anio: 2026, mes: 12, nombre: 'Diciembre' },
@@ -44,11 +44,11 @@ describe('FlujoCaja', () => {
     expect(screen.getByText('Diciembre')).toBeTruthy();
 
     fireEvent.click(screen.getByLabelText('Casa Noviembre seleccionado'));
-    // posible = 5000 + 1000 - 400 - 300 (proyección) + 200 = 5500; dif = -4500
+    // posible = 5000 + 1000 - 400 - 300 (proyección) = 5300; dif = -4700
     await waitFor(() =>
-      expect(screen.getByTestId('posible_gran_total').textContent).toMatch(/5\.500/)
+      expect(screen.getByTestId('posible_gran_total').textContent).toMatch(/5\.300/)
     );
-    expect(screen.getByTestId('dif_meta').textContent).toMatch(/4\.500/);
+    expect(screen.getByTestId('dif_meta').textContent).toMatch(/4\.700/);
     expect(screen.getByTestId('dif_meta').className).toMatch(/text-red-600/);
     expect(screen.getByTestId('total-gf').textContent).toMatch(/400/);
 
@@ -64,7 +64,7 @@ describe('FlujoCaja', () => {
       { concepto: 'tengo efectivo', valor: 1000 },
       { concepto: '', valor: 500 },
     ]);
-    expect(body.parametros).toEqual({ cuenta_bolsillo: 5000, meta: 10000, est_prest_serv: 200 });
+    expect(body.parametros).toEqual({ cuenta_bolsillo: 5000, meta: 10000, est_prest_serv: 0 });
     expect(body.gastos_fijos).toContainEqual({
       gasto_fijo_id: 3,
       anio: 2026,

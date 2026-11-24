@@ -11,8 +11,7 @@ describe('flujoCaja', () => {
     const r = calcularIndicadores({
       cuentaBolsillo: 14223493,
       meta: 24500000,
-      estPrestServ: 6200000,
-      totalEntra: 3750000,
+      totalEntra: 9950000, // 3.750.000 + 6.200.000 (est prest serv ahora va en Dinero entra)
       totalGastos: 1109741,
     });
     expect(r.falta_meta_total).toBe(10276507);
@@ -27,14 +26,13 @@ describe('flujoCaja', () => {
     const r = calcularIndicadores({
       cuentaBolsillo: 1000,
       meta: 5000,
-      estPrestServ: 200,
       totalEntra: 500,
       totalGastos: 100,
       totalProyeccion: 300,
     });
-    // 1000 + 500 - 100 - 300 + 200
-    expect(r.posible_gran_total).toBe(1300);
-    expect(r.dif_meta).toBe(-3700);
+    // 1000 + 500 - 100 - 300
+    expect(r.posible_gran_total).toBe(1100);
+    expect(r.dif_meta).toBe(-3900);
     expect(totalProyeccionGastos([{ valor: 10 }, { valor: '5' }])).toBe(15);
   });
 
