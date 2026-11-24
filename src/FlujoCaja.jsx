@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { API_BASE } from './utils/api';
+import { FaBullseye, FaChartLine, FaCoins, FaHourglassHalf, FaPiggyBank } from 'react-icons/fa';
 import { formatCurrency } from './utils/format';
 import {
   calcularIndicadores,
@@ -10,15 +11,13 @@ import {
 } from './utils/flujoCaja';
 
 const pageClass = 'min-h-screen px-4 pb-8 pt-20 text-slate-950 md:ml-60 md:px-8 md:pt-8';
-const cardClass = 'mb-6 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm md:p-6';
+const cardClass =
+  'mb-6 rounded-3xl border border-slate-200/80 bg-white p-4 shadow-[0_18px_45px_rgba(15,23,42,0.07)] md:p-6';
 const tableInputClass =
   'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition focus:border-teal-400 focus:ring-4 focus:ring-teal-100';
 
-const thClass =
-  'border border-slate-900 bg-amber-200 px-3 py-2 text-left text-xs font-black uppercase text-slate-900';
-const thBlueClass =
-  'border border-slate-900 bg-sky-500 px-3 py-2 text-left text-xs font-black uppercase text-white';
-const tdClass = 'border border-slate-900 bg-amber-50 px-2 py-1';
+const thClass = 'px-3 py-2 text-left text-xs font-bold uppercase tracking-wide text-slate-400';
+const tdClass = 'px-3 py-2';
 const AUTOSAVE_MS = 800;
 
 const toNum = (v) => {
@@ -35,12 +34,42 @@ const PARAMS = [
 ];
 
 const CALCULADOS = [
-  { key: 'falta_meta_total', label: 'Falta meta total' },
-  { key: 'posible_gran_total', label: 'Posible gran total' },
-  { key: 'dif_meta', label: 'Dif meta' },
-  { key: 'a_3_meses', label: 'A 3 meses' },
-  { key: 'a_4_meses', label: 'A 4 meses' },
-  { key: 'bolsa', label: 'Bolsa' },
+  {
+    key: 'falta_meta_total',
+    label: 'Falta meta total',
+    icon: FaHourglassHalf,
+    tone: 'from-orange-50 to-amber-50 text-orange-500',
+  },
+  {
+    key: 'posible_gran_total',
+    label: 'Posible gran total',
+    icon: FaCoins,
+    tone: 'from-emerald-50 to-cyan-50 text-emerald-500',
+  },
+  {
+    key: 'dif_meta',
+    label: 'Dif meta',
+    icon: FaBullseye,
+    tone: 'from-violet-50 to-purple-50 text-violet-500',
+  },
+  {
+    key: 'a_3_meses',
+    label: 'A 3 meses',
+    icon: FaChartLine,
+    tone: 'from-cyan-50 to-sky-50 text-cyan-500',
+  },
+  {
+    key: 'a_4_meses',
+    label: 'A 4 meses',
+    icon: FaChartLine,
+    tone: 'from-blue-50 to-sky-50 text-blue-500',
+  },
+  {
+    key: 'bolsa',
+    label: 'Bolsa',
+    icon: FaPiggyBank,
+    tone: 'from-rose-50 to-pink-50 text-rose-500',
+  },
 ];
 
 export default function FlujoCaja() {
@@ -190,15 +219,15 @@ export default function FlujoCaja() {
       <section className={cardClass}>
         <h3 className="mb-4 text-lg font-black text-[#061640]">Dinero entra</h3>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[420px] border-collapse text-sm">
-            <thead>
+          <table className="w-full min-w-[420px] text-left text-sm">
+            <thead className="bg-slate-50">
               <tr>
                 <th className={thClass}>Concepto</th>
                 <th className={thClass}>Valor</th>
                 <th className={`${thClass} w-24`}>Acción</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-100">
               {entradas.map((e, idx) => (
                 <tr key={e.id ?? `n-${idx}`}>
                   <td className={tdClass}>
@@ -354,49 +383,50 @@ export default function FlujoCaja() {
 
       <section className={cardClass}>
         <h3 className="mb-4 text-lg font-black text-[#061640]">Indicadores</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] border-collapse text-sm">
-            <thead>
-              <tr>
-                {PARAMS.map((p) => (
-                  <th key={p.key} className={thClass}>
-                    {p.label}
-                  </th>
-                ))}
-                {CALCULADOS.map((c) => (
-                  <th key={c.key} className={thBlueClass}>
-                    {c.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {PARAMS.map((p) => (
-                  <td key={p.key} className={tdClass}>
-                    <input
-                      type="number"
-                      aria-label={p.label}
-                      className={`${tableInputClass} text-right`}
-                      value={parametros[p.key] ?? ''}
-                      onChange={(ev) =>
-                        setParametros((prev) => ({ ...prev, [p.key]: ev.target.value }))
-                      }
-                    />
-                  </td>
-                ))}
-                {CALCULADOS.map((c) => (
-                  <td
-                    key={c.key}
+        <div className="grid gap-4 sm:grid-cols-3">
+          {PARAMS.map((p) => (
+            <label
+              key={p.key}
+              className="block rounded-2xl border border-slate-200 bg-slate-50/60 p-4 text-xs font-bold uppercase tracking-wide text-slate-400"
+            >
+              {p.label}
+              <input
+                type="number"
+                aria-label={p.label}
+                className={`${tableInputClass} mt-2 h-12 text-right text-base`}
+                value={parametros[p.key] ?? ''}
+                onChange={(ev) => setParametros((prev) => ({ ...prev, [p.key]: ev.target.value }))}
+              />
+            </label>
+          ))}
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
+          {CALCULADOS.map((c) => {
+            const Icon = c.icon;
+            return (
+              <div
+                key={c.key}
+                className="flex min-w-0 items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_10px_28px_rgba(15,23,42,0.06)] sm:p-4"
+              >
+                <span
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${c.tone}`}
+                >
+                  <Icon />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold leading-snug text-slate-500">{c.label}</p>
+                  <p
                     data-testid={c.key}
-                    className={`border border-slate-900 bg-sky-50 px-3 py-2 text-right text-base font-black ${moneyClass(indicadores[c.key])}`}
+                    className={`mt-1 break-words text-base font-black leading-tight ${
+                      indicadores[c.key] < 0 ? 'text-red-600' : 'text-[#12b8a6]'
+                    }`}
                   >
-                    {formatCurrency(indicadores[c.key])}
-                  </td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
+                    {formatCurrency(indicadores[c.key], { minimumFractionDigits: 0 })}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </section>
     </main>
