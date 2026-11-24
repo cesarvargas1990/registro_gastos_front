@@ -4,11 +4,13 @@ import MesesTable from './MesesTable.jsx';
 import GastosFijosTable from './GastosFijosTable.jsx';
 import Dashboard from './Dashboard.jsx';
 import GastosForm from './GastosForm.jsx';
+import FlujoCaja from './FlujoCaja.jsx';
 import Login from './Login.jsx';
 import {
   FaCalendarAlt,
   FaHome,
   FaListAlt,
+  FaMoneyBillWave,
   FaPiggyBank,
   FaPowerOff,
   FaReceipt,
@@ -35,6 +37,7 @@ function App() {
     { id: 'listado', label: 'Lista Movimientos', icon: FaListAlt },
     { id: 'meses', label: 'Meses', icon: FaCalendarAlt },
     { id: 'gastos-fijos', label: 'Gastos Fijos', icon: FaWallet },
+    { id: 'flujo-caja', label: 'Flujo de caja', icon: FaMoneyBillWave },
   ];
 
   const renderNavButton = ({ id, label, icon: Icon }, onSelect) => {
@@ -130,6 +133,8 @@ function App() {
       {vista === 'meses' && <MesesTable />}
 
       {vista === 'gastos-fijos' && <GastosFijosTable />}
+
+      {vista === 'flujo-caja' && <FlujoCaja />}
     </div>
   );
 }
