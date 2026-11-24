@@ -3,8 +3,11 @@ const num = (v) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-export const totalDineroEntra = (entradas = []) =>
-  entradas.reduce((acc, e) => acc + num(e?.valor), 0);
+export const totalFilas = (filas = []) => filas.reduce((acc, e) => acc + num(e?.valor), 0);
+
+export const totalDineroEntra = totalFilas;
+
+export const totalProyeccionGastos = totalFilas;
 
 export const totalGastosFijosMes = (gastosFijos = [], anio, mes) =>
   gastosFijos.reduce(
@@ -30,11 +33,13 @@ export const calcularIndicadores = ({
   estPrestServ,
   totalEntra,
   totalGastos,
+  totalProyeccion = 0,
 }) => {
   const cuenta = num(cuentaBolsillo);
   const m = num(meta);
   const faltaMetaTotal = m - cuenta;
-  const posibleGranTotal = cuenta + num(totalEntra) - num(totalGastos) + num(estPrestServ);
+  const posibleGranTotal =
+    cuenta + num(totalEntra) - num(totalGastos) - num(totalProyeccion) + num(estPrestServ);
   const difMeta = posibleGranTotal - m;
   return {
     falta_meta_total: faltaMetaTotal,

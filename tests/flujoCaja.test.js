@@ -3,6 +3,7 @@ import {
   totalDineroEntra,
   totalGastosFijos,
   totalGastosFijosMes,
+  totalProyeccionGastos,
 } from '../src/utils/flujoCaja';
 
 describe('flujoCaja', () => {
@@ -20,6 +21,21 @@ describe('flujoCaja', () => {
     expect(r.bolsa).toBe(-1436248);
     expect(r.a_3_meses).toBeCloseTo(3425502.33, 2);
     expect(r.a_4_meses).toBeCloseTo(2569126.75, 2);
+  });
+
+  it('resta la proyección de gastos del posible gran total', () => {
+    const r = calcularIndicadores({
+      cuentaBolsillo: 1000,
+      meta: 5000,
+      estPrestServ: 200,
+      totalEntra: 500,
+      totalGastos: 100,
+      totalProyeccion: 300,
+    });
+    // 1000 + 500 - 100 - 300 + 200
+    expect(r.posible_gran_total).toBe(1300);
+    expect(r.dif_meta).toBe(-3700);
+    expect(totalProyeccionGastos([{ valor: 10 }, { valor: '5' }])).toBe(15);
   });
 
   it('suma entradas tolerando valores inválidos', () => {

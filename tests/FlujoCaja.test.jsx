@@ -12,6 +12,7 @@ jest.mock('axios', () => ({
 
 const data = {
   entradas: [{ id: 1, concepto: 'tengo efectivo', valor: 1000, orden: 1 }],
+  proyeccion_gastos: [{ id: 7, concepto: 'mercado', valor: 300, orden: 1 }],
   parametros: { cuenta_bolsillo: 5000, meta: 10000, est_prest_serv: 200 },
   meses: [
     { anio: 2026, mes: 11, nombre: 'Noviembre' },
@@ -43,15 +44,15 @@ describe('FlujoCaja', () => {
     expect(screen.getByText('Diciembre')).toBeTruthy();
 
     fireEvent.click(screen.getByLabelText('Casa Noviembre seleccionado'));
-    // posible = 5000 + 1000 - 400 + 200 = 5800; dif = -4200
+    // posible = 5000 + 1000 - 400 - 300 (proyección) + 200 = 5500; dif = -4500
     await waitFor(() =>
-      expect(screen.getByTestId('posible_gran_total').textContent).toMatch(/5\.800/)
+      expect(screen.getByTestId('posible_gran_total').textContent).toMatch(/5\.500/)
     );
-    expect(screen.getByTestId('dif_meta').textContent).toMatch(/4\.200/);
+    expect(screen.getByTestId('dif_meta').textContent).toMatch(/4\.500/);
     expect(screen.getByTestId('dif_meta').className).toMatch(/text-red-600/);
     expect(screen.getByTestId('total-gf').textContent).toMatch(/400/);
 
-    fireEvent.click(screen.getByText('Agregar fila'));
+    fireEvent.click(screen.getAllByText('Agregar fila')[0]);
     fireEvent.change(screen.getByLabelText('Valor 2'), { target: { value: '500' } });
     expect(screen.getByTestId('total-entra').textContent).toMatch(/1\.500/);
 
@@ -71,6 +72,8 @@ describe('FlujoCaja', () => {
       valor: 400,
       seleccionado: true,
     });
+    expect(body.proyeccion_gastos).toEqual([{ concepto: 'mercado', valor: 300 }]);
+    expect(screen.getByTestId('total-proyeccion').textContent).toMatch(/300/);
     await screen.findByText('Flujo de caja guardado.');
   });
 

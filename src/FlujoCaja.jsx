@@ -6,6 +6,8 @@ import { formatCurrency } from './utils/format';
 import {
   calcularIndicadores,
   totalDineroEntra,
+  totalFilas,
+  totalProyeccionGastos,
   totalGastosFijos,
   totalGastosFijosMes,
 } from './utils/flujoCaja';
@@ -72,6 +74,76 @@ const CALCULADOS = [
   },
 ];
 
+function TablaFilas({ titulo, filas, onChange, onAdd, onRemove, ariaPrefix, totalLabel, totalId }) {
+  const total = totalFilas(filas);
+  return (
+    <section className={cardClass}>
+      <h3 className="mb-4 text-lg font-black text-[#061640]">{titulo}</h3>
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[420px] text-left text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className={thClass}>Concepto</th>
+              <th className={thClass}>Valor</th>
+              <th className={`${thClass} w-24`}>Acción</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {filas.map((e, idx) => (
+              <tr key={e.id ?? `n-${idx}`}>
+                <td className={tdClass}>
+                  <input
+                    type="text"
+                    aria-label={`${ariaPrefix.concepto} ${idx + 1}`}
+                    placeholder="Concepto"
+                    className={tableInputClass}
+                    value={e.concepto ?? ''}
+                    onChange={(ev) => onChange(idx, 'concepto', ev.target.value)}
+                  />
+                </td>
+                <td className={tdClass}>
+                  <input
+                    type="number"
+                    aria-label={`${ariaPrefix.valor} ${idx + 1}`}
+                    className={`${tableInputClass} text-right`}
+                    value={e.valor ?? ''}
+                    onChange={(ev) => onChange(idx, 'valor', ev.target.value)}
+                  />
+                </td>
+                <td className={tdClass}>
+                  <button
+                    type="button"
+                    aria-label={`${ariaPrefix.eliminar} ${idx + 1}`}
+                    onClick={() => onRemove(idx)}
+                    className="h-9 rounded-lg bg-red-50 px-3 text-sm font-bold text-red-600 transition hover:bg-red-100"
+                  >
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          onClick={onAdd}
+          className="h-9 rounded-lg bg-blue-50 px-3 text-sm font-bold text-blue-600 transition hover:bg-blue-100"
+        >
+          Agregar fila
+        </button>
+        <p className="text-sm font-bold text-slate-500">
+          {totalLabel}:{' '}
+          <span data-testid={totalId} className={`text-lg font-black ${moneyClass(total)}`}>
+            {formatCurrency(total)}
+          </span>
+        </p>
+      </div>
+    </section>
+  );
+}
+
 export default function FlujoCaja() {
   const [entradas, setEntradas] = useState([]);
   const [parametros, setParametros] = useState({
@@ -79,6 +151,7 @@ export default function FlujoCaja() {
     meta: 0,
     est_prest_serv: 0,
   });
+  const [proyeccion, setProyeccion] = useState([]);
   const [meses, setMeses] = useState([]);
   const [gastosFijos, setGastosFijos] = useState([]);
   const [mensaje, setMensaje] = useState('');
@@ -95,6 +168,7 @@ export default function FlujoCaja() {
         omitirSiguiente.current = true;
         setEntradas(data.entradas || []);
         setParametros((prev) => ({ ...prev, ...(data.parametros || {}) }));
+        setProyeccion(data.proyeccion_gastos || []);
         setMeses(data.meses || []);
         setGastosFijos(data.gastos_fijos || []);
         cargado.current = true;
@@ -107,6 +181,7 @@ export default function FlujoCaja() {
   }, []);
 
   const totalEntra = useMemo(() => totalDineroEntra(entradas), [entradas]);
+  const totalProyeccion = useMemo(() => totalProyeccionGastos(proyeccion), [proyeccion]);
   const totalGastos = useMemo(() => totalGastosFijos(gastosFijos), [gastosFijos]);
   const indicadores = useMemo(
     () =>
@@ -116,8 +191,9 @@ export default function FlujoCaja() {
         estPrestServ: parametros.est_prest_serv,
         totalEntra,
         totalGastos,
+        totalProyeccion,
       }),
-    [parametros, totalEntra, totalGastos]
+    [parametros, totalEntra, totalGastos, totalProyeccion]
   );
 
   const updateEntrada = (idx, campo, valor) =>
@@ -126,6 +202,13 @@ export default function FlujoCaja() {
   const agregarEntrada = () => setEntradas((prev) => [...prev, { concepto: '', valor: 0 }]);
 
   const eliminarEntrada = (idx) => setEntradas((prev) => prev.filter((_, i) => i !== idx));
+
+  const updateProyeccion = (idx, campo, valor) =>
+    setProyeccion((prev) => prev.map((e, i) => (i === idx ? { ...e, [campo]: valor } : e)));
+
+  const agregarProyeccion = () => setProyeccion((prev) => [...prev, { concepto: '', valor: 0 }]);
+
+  const eliminarProyeccion = (idx) => setProyeccion((prev) => prev.filter((_, i) => i !== idx));
 
   const updateMes = (gfId, anio, mes, campo, valor) =>
     setGastosFijos((prev) =>
@@ -143,6 +226,10 @@ export default function FlujoCaja() {
 
   const construirPayload = () => ({
     entradas: entradas.map((e) => ({ concepto: e.concepto || '', valor: toNum(e.valor) })),
+    proyeccion_gastos: proyeccion.map((e) => ({
+      concepto: e.concepto || '',
+      valor: toNum(e.valor),
+    })),
     parametros: {
       cuenta_bolsillo: toNum(parametros.cuenta_bolsillo),
       meta: toNum(parametros.meta),
@@ -183,7 +270,7 @@ export default function FlujoCaja() {
     const timer = setTimeout(() => guardar(true), AUTOSAVE_MS);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [entradas, parametros, gastosFijos]);
+  }, [entradas, proyeccion, parametros, gastosFijos]);
 
   return (
     <main className={pageClass}>
@@ -265,73 +352,31 @@ export default function FlujoCaja() {
         </div>
       </section>
 
-      <section className={cardClass}>
-        <h3 className="mb-4 text-lg font-black text-[#061640]">Dinero entra</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[420px] text-left text-sm">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className={thClass}>Concepto</th>
-                <th className={thClass}>Valor</th>
-                <th className={`${thClass} w-24`}>Acción</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {entradas.map((e, idx) => (
-                <tr key={e.id ?? `n-${idx}`}>
-                  <td className={tdClass}>
-                    <input
-                      type="text"
-                      aria-label={`Concepto ${idx + 1}`}
-                      placeholder="Concepto"
-                      className={tableInputClass}
-                      value={e.concepto ?? ''}
-                      onChange={(ev) => updateEntrada(idx, 'concepto', ev.target.value)}
-                    />
-                  </td>
-                  <td className={tdClass}>
-                    <input
-                      type="number"
-                      aria-label={`Valor ${idx + 1}`}
-                      className={`${tableInputClass} text-right`}
-                      value={e.valor ?? ''}
-                      onChange={(ev) => updateEntrada(idx, 'valor', ev.target.value)}
-                    />
-                  </td>
-                  <td className={tdClass}>
-                    <button
-                      type="button"
-                      aria-label={`Eliminar fila ${idx + 1}`}
-                      onClick={() => eliminarEntrada(idx)}
-                      className="h-9 rounded-lg bg-red-50 px-3 text-sm font-bold text-red-600 transition hover:bg-red-100"
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-          <button
-            type="button"
-            onClick={agregarEntrada}
-            className="h-9 rounded-lg bg-blue-50 px-3 text-sm font-bold text-blue-600 transition hover:bg-blue-100"
-          >
-            Agregar fila
-          </button>
-          <p className="text-sm font-bold text-slate-500">
-            Total dinero entra:{' '}
-            <span
-              data-testid="total-entra"
-              className={`text-lg font-black ${moneyClass(totalEntra)}`}
-            >
-              {formatCurrency(totalEntra)}
-            </span>
-          </p>
-        </div>
-      </section>
+      <TablaFilas
+        titulo="Dinero entra"
+        filas={entradas}
+        onChange={updateEntrada}
+        onAdd={agregarEntrada}
+        onRemove={eliminarEntrada}
+        ariaPrefix={{ concepto: 'Concepto', valor: 'Valor', eliminar: 'Eliminar fila' }}
+        totalLabel="Total dinero entra"
+        totalId="total-entra"
+      />
+
+      <TablaFilas
+        titulo="Proyección gastos"
+        filas={proyeccion}
+        onChange={updateProyeccion}
+        onAdd={agregarProyeccion}
+        onRemove={eliminarProyeccion}
+        ariaPrefix={{
+          concepto: 'Concepto proyección',
+          valor: 'Valor proyección',
+          eliminar: 'Eliminar proyección',
+        }}
+        totalLabel="Total proyección gastos"
+        totalId="total-proyeccion"
+      />
 
       <section className={cardClass}>
         <h3 className="mb-4 text-lg font-black text-[#061640]">Gastos fijos</h3>
