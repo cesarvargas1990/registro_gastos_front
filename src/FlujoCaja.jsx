@@ -217,6 +217,55 @@ export default function FlujoCaja() {
       )}
 
       <section className={cardClass}>
+        <h3 className="mb-4 text-lg font-black text-[#061640]">Indicadores</h3>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {PARAMS.map((p) => (
+            <label
+              key={p.key}
+              className="block rounded-2xl border border-slate-200 bg-slate-50/60 p-4 text-xs font-bold uppercase tracking-wide text-slate-400"
+            >
+              {p.label}
+              <input
+                type="number"
+                aria-label={p.label}
+                className={`${tableInputClass} mt-2 h-12 text-right text-base`}
+                value={parametros[p.key] ?? ''}
+                onChange={(ev) => setParametros((prev) => ({ ...prev, [p.key]: ev.target.value }))}
+              />
+            </label>
+          ))}
+        </div>
+        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
+          {CALCULADOS.map((c) => {
+            const Icon = c.icon;
+            return (
+              <div
+                key={c.key}
+                className="flex min-w-0 items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_10px_28px_rgba(15,23,42,0.06)] sm:p-4"
+              >
+                <span
+                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${c.tone}`}
+                >
+                  <Icon />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[11px] font-bold leading-snug text-slate-500">{c.label}</p>
+                  <p
+                    data-testid={c.key}
+                    className={`mt-1 break-words text-base font-black leading-tight ${
+                      indicadores[c.key] < 0 ? 'text-red-600' : 'text-[#12b8a6]'
+                    }`}
+                  >
+                    {formatCurrency(indicadores[c.key], { minimumFractionDigits: 0 })}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className={cardClass}>
         <h3 className="mb-4 text-lg font-black text-[#061640]">Dinero entra</h3>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[420px] text-left text-sm">
@@ -379,55 +428,6 @@ export default function FlujoCaja() {
             {formatCurrency(totalGastos)}
           </span>
         </p>
-      </section>
-
-      <section className={cardClass}>
-        <h3 className="mb-4 text-lg font-black text-[#061640]">Indicadores</h3>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {PARAMS.map((p) => (
-            <label
-              key={p.key}
-              className="block rounded-2xl border border-slate-200 bg-slate-50/60 p-4 text-xs font-bold uppercase tracking-wide text-slate-400"
-            >
-              {p.label}
-              <input
-                type="number"
-                aria-label={p.label}
-                className={`${tableInputClass} mt-2 h-12 text-right text-base`}
-                value={parametros[p.key] ?? ''}
-                onChange={(ev) => setParametros((prev) => ({ ...prev, [p.key]: ev.target.value }))}
-              />
-            </label>
-          ))}
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-3 2xl:grid-cols-6">
-          {CALCULADOS.map((c) => {
-            const Icon = c.icon;
-            return (
-              <div
-                key={c.key}
-                className="flex min-w-0 items-center gap-3 rounded-2xl border border-slate-200 bg-white p-3 shadow-[0_10px_28px_rgba(15,23,42,0.06)] sm:p-4"
-              >
-                <span
-                  className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br ${c.tone}`}
-                >
-                  <Icon />
-                </span>
-                <div className="min-w-0">
-                  <p className="text-[11px] font-bold leading-snug text-slate-500">{c.label}</p>
-                  <p
-                    data-testid={c.key}
-                    className={`mt-1 break-words text-base font-black leading-tight ${
-                      indicadores[c.key] < 0 ? 'text-red-600' : 'text-[#12b8a6]'
-                    }`}
-                  >
-                    {formatCurrency(indicadores[c.key], { minimumFractionDigits: 0 })}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
       </section>
     </main>
   );
