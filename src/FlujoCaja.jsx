@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { API_BASE } from './utils/api';
 import { formatCurrency } from './utils/format';
@@ -13,6 +13,13 @@ const pageClass = 'min-h-screen px-4 pb-8 pt-20 text-slate-950 md:ml-60 md:px-8 
 const cardClass = 'mb-6 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm md:p-6';
 const tableInputClass =
   'h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-900 shadow-sm outline-none transition focus:border-teal-400 focus:ring-4 focus:ring-teal-100';
+
+const thClass =
+  'border border-slate-900 bg-amber-200 px-3 py-2 text-left text-xs font-black uppercase text-slate-900';
+const thBlueClass =
+  'border border-slate-900 bg-sky-500 px-3 py-2 text-left text-xs font-black uppercase text-white';
+const tdClass = 'border border-slate-900 bg-amber-50 px-2 py-1';
+const AUTOSAVE_MS = 800;
 
 const toNum = (v) => {
   const n = Number(v);
@@ -48,16 +55,20 @@ export default function FlujoCaja() {
   const [mensaje, setMensaje] = useState('');
   const [error, setError] = useState('');
   const [guardando, setGuardando] = useState(false);
+  const cargado = useRef(false);
+  const omitirSiguiente = useRef(false);
 
   useEffect(() => {
     axios
       .get(`${API_BASE}/flujo-caja`)
       .then((response) => {
         const data = response.data || {};
+        omitirSiguiente.current = true;
         setEntradas(data.entradas || []);
         setParametros((prev) => ({ ...prev, ...(data.parametros || {}) }));
         setMeses(data.meses || []);
         setGastosFijos(data.gastos_fijos || []);
+        cargado.current = true;
         setError('');
       })
       .catch((err) => {
@@ -101,30 +112,31 @@ export default function FlujoCaja() {
       )
     );
 
-  const guardar = async () => {
+  const construirPayload = () => ({
+    entradas: entradas.map((e) => ({ concepto: e.concepto || '', valor: toNum(e.valor) })),
+    parametros: {
+      cuenta_bolsillo: toNum(parametros.cuenta_bolsillo),
+      meta: toNum(parametros.meta),
+      est_prest_serv: toNum(parametros.est_prest_serv),
+    },
+    gastos_fijos: gastosFijos.flatMap((gf) =>
+      (gf.meses || []).map((m) => ({
+        gasto_fijo_id: gf.gasto_fijo_id,
+        anio: m.anio,
+        mes: m.mes,
+        valor: toNum(m.valor),
+        seleccionado: !!m.seleccionado,
+      }))
+    ),
+  });
+
+  const guardar = async (automatico = false) => {
     setMensaje('');
     setError('');
     setGuardando(true);
     try {
-      const payload = {
-        entradas: entradas.map((e) => ({ concepto: e.concepto || '', valor: toNum(e.valor) })),
-        parametros: {
-          cuenta_bolsillo: toNum(parametros.cuenta_bolsillo),
-          meta: toNum(parametros.meta),
-          est_prest_serv: toNum(parametros.est_prest_serv),
-        },
-        gastos_fijos: gastosFijos.flatMap((gf) =>
-          (gf.meses || []).map((m) => ({
-            gasto_fijo_id: gf.gasto_fijo_id,
-            anio: m.anio,
-            mes: m.mes,
-            valor: toNum(m.valor),
-            seleccionado: !!m.seleccionado,
-          }))
-        ),
-      };
-      await axios.put(`${API_BASE}/flujo-caja`, payload);
-      setMensaje('Flujo de caja guardado.');
+      await axios.put(`${API_BASE}/flujo-caja`, construirPayload());
+      setMensaje(automatico ? 'Guardado automáticamente.' : 'Flujo de caja guardado.');
     } catch (err) {
       console.error('Error guardando flujo de caja:', err);
       setError(err?.response?.data?.error || 'Error al guardar el flujo de caja.');
@@ -132,6 +144,17 @@ export default function FlujoCaja() {
       setGuardando(false);
     }
   };
+
+  useEffect(() => {
+    if (!cargado.current) return undefined;
+    if (omitirSiguiente.current) {
+      omitirSiguiente.current = false;
+      return undefined;
+    }
+    const timer = setTimeout(() => guardar(true), AUTOSAVE_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entradas, parametros, gastosFijos]);
 
   return (
     <main className={pageClass}>
@@ -145,7 +168,7 @@ export default function FlujoCaja() {
         </div>
         <button
           type="button"
-          onClick={guardar}
+          onClick={() => guardar(false)}
           disabled={guardando}
           className="h-12 rounded-xl bg-teal-600 px-6 text-sm font-bold text-white shadow-sm transition hover:bg-teal-700 disabled:opacity-60"
         >
@@ -166,34 +189,51 @@ export default function FlujoCaja() {
 
       <section className={cardClass}>
         <h3 className="mb-4 text-lg font-black text-[#061640]">Dinero entra</h3>
-        <div className="space-y-3">
-          {entradas.map((e, idx) => (
-            <div key={e.id ?? `n-${idx}`} className="flex flex-wrap items-center gap-2">
-              <input
-                type="text"
-                aria-label={`Concepto ${idx + 1}`}
-                placeholder="Concepto"
-                className={`${tableInputClass} min-w-0 flex-1 basis-40`}
-                value={e.concepto ?? ''}
-                onChange={(ev) => updateEntrada(idx, 'concepto', ev.target.value)}
-              />
-              <input
-                type="number"
-                aria-label={`Valor ${idx + 1}`}
-                className={`${tableInputClass} w-40 text-right`}
-                value={e.valor ?? ''}
-                onChange={(ev) => updateEntrada(idx, 'valor', ev.target.value)}
-              />
-              <button
-                type="button"
-                aria-label={`Eliminar fila ${idx + 1}`}
-                onClick={() => eliminarEntrada(idx)}
-                className="h-9 rounded-lg bg-red-50 px-3 text-sm font-bold text-red-600 transition hover:bg-red-100"
-              >
-                Eliminar
-              </button>
-            </div>
-          ))}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[420px] border-collapse text-sm">
+            <thead>
+              <tr>
+                <th className={thClass}>Concepto</th>
+                <th className={thClass}>Valor</th>
+                <th className={`${thClass} w-24`}>Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entradas.map((e, idx) => (
+                <tr key={e.id ?? `n-${idx}`}>
+                  <td className={tdClass}>
+                    <input
+                      type="text"
+                      aria-label={`Concepto ${idx + 1}`}
+                      placeholder="Concepto"
+                      className={tableInputClass}
+                      value={e.concepto ?? ''}
+                      onChange={(ev) => updateEntrada(idx, 'concepto', ev.target.value)}
+                    />
+                  </td>
+                  <td className={tdClass}>
+                    <input
+                      type="number"
+                      aria-label={`Valor ${idx + 1}`}
+                      className={`${tableInputClass} text-right`}
+                      value={e.valor ?? ''}
+                      onChange={(ev) => updateEntrada(idx, 'valor', ev.target.value)}
+                    />
+                  </td>
+                  <td className={tdClass}>
+                    <button
+                      type="button"
+                      aria-label={`Eliminar fila ${idx + 1}`}
+                      onClick={() => eliminarEntrada(idx)}
+                      className="h-9 rounded-lg bg-red-50 px-3 text-sm font-bold text-red-600 transition hover:bg-red-100"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
         <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
           <button
@@ -314,32 +354,50 @@ export default function FlujoCaja() {
 
       <section className={cardClass}>
         <h3 className="mb-4 text-lg font-black text-[#061640]">Indicadores</h3>
-        <div className="grid gap-4 sm:grid-cols-3">
-          {PARAMS.map((p) => (
-            <label key={p.key} className="block text-xs font-bold uppercase text-slate-400">
-              {p.label}
-              <input
-                type="number"
-                className={`${tableInputClass} mt-1 text-right`}
-                value={parametros[p.key] ?? ''}
-                onChange={(ev) => setParametros((prev) => ({ ...prev, [p.key]: ev.target.value }))}
-              />
-            </label>
-          ))}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] border-collapse text-sm">
+            <thead>
+              <tr>
+                {PARAMS.map((p) => (
+                  <th key={p.key} className={thClass}>
+                    {p.label}
+                  </th>
+                ))}
+                {CALCULADOS.map((c) => (
+                  <th key={c.key} className={thBlueClass}>
+                    {c.label}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {PARAMS.map((p) => (
+                  <td key={p.key} className={tdClass}>
+                    <input
+                      type="number"
+                      aria-label={p.label}
+                      className={`${tableInputClass} text-right`}
+                      value={parametros[p.key] ?? ''}
+                      onChange={(ev) =>
+                        setParametros((prev) => ({ ...prev, [p.key]: ev.target.value }))
+                      }
+                    />
+                  </td>
+                ))}
+                {CALCULADOS.map((c) => (
+                  <td
+                    key={c.key}
+                    data-testid={c.key}
+                    className={`border border-slate-900 bg-sky-50 px-3 py-2 text-right text-base font-black ${moneyClass(indicadores[c.key])}`}
+                  >
+                    {formatCurrency(indicadores[c.key])}
+                  </td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <dl className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {CALCULADOS.map((c) => (
-            <div key={c.key} className="rounded-xl bg-slate-50 p-4">
-              <dt className="text-xs font-bold uppercase text-slate-400">{c.label}</dt>
-              <dd
-                data-testid={c.key}
-                className={`mt-1 text-xl font-black ${moneyClass(indicadores[c.key])}`}
-              >
-                {formatCurrency(indicadores[c.key])}
-              </dd>
-            </div>
-          ))}
-        </dl>
       </section>
     </main>
   );

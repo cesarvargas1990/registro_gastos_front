@@ -74,6 +74,17 @@ describe('FlujoCaja', () => {
     await screen.findByText('Flujo de caja guardado.');
   });
 
+  it('no guarda al cargar y autoguarda tras editar', async () => {
+    render(<FlujoCaja />);
+    await screen.findByText('Casa');
+    await new Promise((r) => setTimeout(r, 1000));
+    expect(axios.put).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByLabelText('Valor 1'), { target: { value: '777' } });
+    await waitFor(() => expect(axios.put).toHaveBeenCalledTimes(1), { timeout: 3000 });
+    expect(axios.put.mock.calls[0][1].entradas[0].valor).toBe(777);
+  });
+
   it('muestra el error del backend al fallar el guardado', async () => {
     axios.put.mockRejectedValue({ response: { data: { error: 'inválido' } } });
     jest.spyOn(console, 'error').mockImplementation(() => {});
