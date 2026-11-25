@@ -30,7 +30,7 @@ const toNum = (v) => {
 const moneyClass = (v) => (v < 0 ? 'text-red-600' : 'text-[#061640]');
 
 const PARAMS = [
-  { key: 'cuenta_bolsillo', label: 'Actual cuenta bolsillo' },
+  { key: 'cuenta_bolsillo', label: 'Actual cuenta bolsillo', readOnly: true },
   { key: 'meta', label: 'Meta' },
 ];
 
@@ -160,14 +160,26 @@ export default function FlujoCaja() {
   const omitirSiguiente = useRef(false);
 
   useEffect(() => {
-    axios
-      .get(`${API_BASE}/flujo-caja`)
+    // Mismo valor que "Actual en cuenta ahorros" de Indicadores Financieros (Dashboard).
+    const cuentaDashboard = axios
+      .get(`${API_BASE}/dashboard-dinamico`)
       .then((response) => {
+        const valor = Number(response.data?.[0]?.actual_en_cuenta_ahorros);
+        return Number.isFinite(valor) ? valor : null;
+      })
+      .catch(() => null);
+
+    Promise.all([axios.get(`${API_BASE}/flujo-caja`), cuentaDashboard])
+      .then(([response, cuenta]) => {
         const data = response.data || {};
         omitirSiguiente.current = true;
         setEntradas(data.entradas || []);
-        setParametros((prev) => ({ ...prev, ...(data.parametros || {}) }));
         setProyeccion(data.proyeccion_gastos || []);
+        setParametros((prev) => ({
+          ...prev,
+          ...(data.parametros || {}),
+          ...(cuenta === null ? {} : { cuenta_bolsillo: cuenta }),
+        }));
         setMeses(data.meses || []);
         setGastosFijos(data.gastos_fijos || []);
         cargado.current = true;
@@ -313,10 +325,18 @@ export default function FlujoCaja() {
               <input
                 type="number"
                 aria-label={p.label}
-                className={`${tableInputClass} mt-2 h-12 text-right text-base`}
+                className={`${tableInputClass} mt-2 h-12 text-right text-base ${
+                  p.readOnly ? 'cursor-not-allowed bg-slate-100 text-slate-600' : ''
+                }`}
                 value={parametros[p.key] ?? ''}
+                readOnly={!!p.readOnly}
                 onChange={(ev) => setParametros((prev) => ({ ...prev, [p.key]: ev.target.value }))}
               />
+              {p.readOnly && (
+                <span className="mt-1 block text-[11px] font-semibold normal-case tracking-normal text-slate-400">
+                  Igual a «Actual en cuenta ahorros» del Dashboard
+                </span>
+              )}
             </label>
           ))}
         </div>

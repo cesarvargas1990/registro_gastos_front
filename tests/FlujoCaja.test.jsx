@@ -33,7 +33,11 @@ const data = {
 
 describe('FlujoCaja', () => {
   beforeEach(() => {
-    axios.get.mockReset().mockResolvedValue({ data });
+    axios.get.mockReset().mockImplementation((url) =>
+      Promise.resolve({
+        data: url.endsWith('/dashboard-dinamico') ? [{ actual_en_cuenta_ahorros: 5000.8 }] : data,
+      })
+    );
     axios.put.mockReset().mockResolvedValue({ data: { message: 'ok' } });
   });
 
@@ -44,11 +48,11 @@ describe('FlujoCaja', () => {
     expect(screen.getByText('Diciembre')).toBeTruthy();
 
     fireEvent.click(screen.getByLabelText('Casa Noviembre seleccionado'));
-    // posible = 5000 + 1000 - 400 - 300 (proyección) = 5300; dif = -4700
+    // posible = 5000 + 1000 - 400 - 300 (proyección) = 5300.8; dif = -4699.2
     await waitFor(() =>
-      expect(screen.getByTestId('posible_gran_total').textContent).toMatch(/5\.300/)
+      expect(screen.getByTestId('posible_gran_total').textContent).toMatch(/5\.301/)
     );
-    expect(screen.getByTestId('dif_meta').textContent).toMatch(/4\.700/);
+    expect(screen.getByTestId('dif_meta').textContent).toMatch(/4\.699/);
     expect(screen.getByTestId('dif_meta').className).toMatch(/text-red-600/);
     expect(screen.getByTestId('total-gf').textContent).toMatch(/400/);
 
@@ -64,7 +68,7 @@ describe('FlujoCaja', () => {
       { concepto: 'tengo efectivo', valor: 1000 },
       { concepto: '', valor: 500 },
     ]);
-    expect(body.parametros).toEqual({ cuenta_bolsillo: 5000, meta: 10000, est_prest_serv: 0 });
+    expect(body.parametros).toEqual({ cuenta_bolsillo: 5000.8, meta: 10000, est_prest_serv: 0 });
     expect(body.gastos_fijos).toContainEqual({
       gasto_fijo_id: 3,
       anio: 2026,
@@ -75,6 +79,14 @@ describe('FlujoCaja', () => {
     expect(body.proyeccion_gastos).toEqual([{ concepto: 'mercado', valor: 300 }]);
     expect(screen.getByTestId('total-proyeccion').textContent).toMatch(/300/);
     await screen.findByText('Flujo de caja guardado.');
+  });
+
+  it('toma la cuenta bolsillo del dashboard y es de solo lectura', async () => {
+    render(<FlujoCaja />);
+    await screen.findByText('Casa');
+    const input = screen.getByLabelText('Actual cuenta bolsillo');
+    expect(input.value).toBe('5000.8');
+    expect(input.readOnly).toBe(true);
   });
 
   it('no guarda al cargar y autoguarda tras editar', async () => {
